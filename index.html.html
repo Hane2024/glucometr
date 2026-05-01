@@ -1,0 +1,2566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#2563EB">
+<title>InsuCalc — حاسبة الأنسولين الإكلينيكية</title>
+<style>
+/* ═══════════════════════════════════════════
+   FONTS — Arabic: Cairo/Tajawal | EN: Inter
+═══════════════════════════════════════════ */
+@import url("data:text/css,");
+:root{
+  --font-ar:'Cairo','Tajawal','Segoe UI',Tahoma,Arial,sans-serif;
+  --font-en:'Inter','Segoe UI',system-ui,Arial,sans-serif;
+  --font-num:'Inter','Segoe UI',system-ui,Arial,sans-serif;
+  --mono:'SF Mono','Fira Mono','Consolas','Courier New',monospace;
+}
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — Clinical Medical
+═══════════════════════════════════════════ */
+:root{
+  /* Backgrounds */
+  --bg:        #F8FAFC;
+  --bg2:       #F1F5F9;
+  --surf:      #FFFFFF;
+  --surf2:     #F8FAFC;
+  --surf3:     #F1F5F9;
+
+  /* Borders */
+  --bdr:       #E2E8F0;
+  --bdr2:      #CBD5E1;
+  --bdr3:      #94A3B8;
+
+  /* Text */
+  --txt:       #0F172A;
+  --txt2:      #334155;
+  --txt3:      #64748B;
+  --txt4:      #94A3B8;
+  --txt5:      #CBD5E1;
+
+  /* Brand — Clinical Blue */
+  --blue:      #2563EB;
+  --blue-l:    #EFF6FF;
+  --blue-m:    #BFDBFE;
+  --blue-d:    #1D4ED8;
+  --blue-s:    rgba(37,99,235,.12);
+
+  /* Clinical Green */
+  --green:     #10B981;
+  --green-l:   #ECFDF5;
+  --green-m:   #A7F3D0;
+  --green-d:   #059669;
+  --green-s:   rgba(16,185,129,.12);
+
+  /* Warning */
+  --amber:     #D97706;
+  --amber-l:   #FFFBEB;
+  --amber-m:   #FDE68A;
+  --amber-d:   #B45309;
+
+  /* Danger */
+  --red:       #DC2626;
+  --red-l:     #FEF2F2;
+  --red-m:     #FECACA;
+  --red-d:     #B91C1C;
+
+  /* Info */
+  --slate:     #64748B;
+  --slate-l:   #F8FAFC;
+
+  /* Shadows — subtle, clinical */
+  --shadow-xs: 0 1px 2px rgba(15,23,42,.04);
+  --shadow-sm: 0 1px 3px rgba(15,23,42,.06), 0 1px 2px rgba(15,23,42,.04);
+  --shadow:    0 2px 8px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.04);
+  --shadow-md: 0 4px 16px rgba(15,23,42,.08), 0 2px 6px rgba(15,23,42,.04);
+  --shadow-lg: 0 8px 24px rgba(15,23,42,.1), 0 4px 10px rgba(15,23,42,.05);
+  --shadow-focus: 0 0 0 3px rgba(37,99,235,.18);
+
+  /* Radius */
+  --r:    12px;
+  --rm:   8px;
+  --rs:   6px;
+  --rx:   4px;
+
+  /* Transitions */
+  --t:    .18s ease;
+  --t2:   .28s ease;
+
+  /* Nav width */
+  --nav-w: 224px;
+  --nav-w-c: 64px;
+}
+
+/* ── DARK MODE ─────────────────────────── */
+[data-theme="dark"]{
+  --bg:        #0F172A;
+  --bg2:       #1E293B;
+  --surf:      #1E293B;
+  --surf2:     #263347;
+  --surf3:     #2E3D52;
+  --bdr:       #2E3D52;
+  --bdr2:      #3D526A;
+  --bdr3:      #526680;
+  --txt:       #F1F5F9;
+  --txt2:      #CBD5E1;
+  --txt3:      #94A3B8;
+  --txt4:      #64748B;
+  --txt5:      #3D526A;
+  --blue:      #3B82F6;
+  --blue-l:    #172554;
+  --blue-m:    #1E3A7A;
+  --blue-d:    #60A5FA;
+  --blue-s:    rgba(59,130,246,.15);
+  --green:     #10B981;
+  --green-l:   #052e1c;
+  --green-m:   #064e33;
+  --green-d:   #34D399;
+  --amber:     #F59E0B;
+  --amber-l:   #292100;
+  --amber-m:   #3D3000;
+  --red:       #EF4444;
+  --red-l:     #2D0808;
+  --red-m:     #430D0D;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.25);
+  --shadow:    0 2px 8px rgba(0,0,0,.3);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.35);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,.4);
+  --shadow-focus: 0 0 0 3px rgba(59,130,246,.25);
+}
+
+/* ═══════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%;scroll-behavior:smooth}
+body{
+  font-family:var(--font-ar);
+  background:var(--bg);color:var(--txt);
+  min-height:100vh;direction:rtl;
+  transition:background var(--t2),color var(--t2);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+}
+body.ltr{direction:ltr;font-family:var(--font-en)}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+img{display:block;max-width:100%}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+input[type=number]{-moz-appearance:textfield}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--bdr3)}
+*:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:var(--rx)}
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideLeft{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes ripple{from{transform:scale(0);opacity:.35}to{transform:scale(2.5);opacity:0}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse2{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes countUp{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+
+/* ═══════════════════════════════════════════
+   LAYOUT SHELL
+═══════════════════════════════════════════ */
+.app-shell{display:flex;min-height:100vh}
+
+/* ── SIDEBAR NAV ──────────────────────────── */
+.sidebar{
+  width:var(--nav-w);min-width:var(--nav-w);
+  background:var(--surf);border-left:1px solid var(--bdr);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;
+  transition:width var(--t2),min-width var(--t2),background var(--t2),border-color var(--t2);
+  z-index:100;flex-shrink:0;
+}
+body.ltr .sidebar{border-left:none;border-right:1px solid var(--bdr)}
+.sidebar.collapsed{width:var(--nav-w-c);min-width:var(--nav-w-c)}
+
+.sb-logo{
+  display:flex;align-items:center;gap:.65rem;
+  padding:1.1rem 1rem 1rem;border-bottom:1px solid var(--bdr);
+  text-decoration:none;overflow:hidden;white-space:nowrap;
+}
+.sb-logo-icon{
+  width:34px;height:34px;min-width:34px;
+  background:var(--blue);border-radius:var(--rm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(37,99,235,.3);
+}
+.sb-logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.sb-logo-text{overflow:hidden}
+.sb-logo-name{font-size:.9rem;font-weight:700;color:var(--txt);letter-spacing:-.01em;line-height:1.1}
+.sb-logo-tag{font-size:.65rem;color:var(--txt3);font-weight:400;margin-top:.1rem}
+.sidebar.collapsed .sb-logo-text{display:none}
+
+.sb-nav{flex:1;padding:.6rem .5rem;display:flex;flex-direction:column;gap:.1rem;overflow-y:auto;overflow-x:hidden}
+.nav-item{
+  display:flex;align-items:center;gap:.65rem;
+  padding:.55rem .65rem;border-radius:var(--rm);
+  color:var(--txt3);font-size:.82rem;font-weight:500;
+  cursor:pointer;transition:all var(--t);white-space:nowrap;
+  overflow:hidden;position:relative;user-select:none;
+}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-item:hover{background:var(--surf2);color:var(--txt2)}
+.nav-item.active{background:var(--blue-l);color:var(--blue);font-weight:600}
+.nav-item.active svg{stroke:var(--blue)}
+.nav-badge{
+  margin-right:auto;background:var(--blue);color:#fff;
+  font-size:.6rem;font-weight:700;padding:.1rem .42rem;
+  border-radius:99px;flex-shrink:0;min-width:16px;text-align:center;
+}
+body.ltr .nav-badge{margin-right:0;margin-left:auto}
+.sidebar.collapsed .nav-item span,.sidebar.collapsed .nav-badge{display:none}
+.sidebar.collapsed .nav-item{justify-content:center;padding:.55rem 0}
+
+.sb-divider{height:1px;background:var(--bdr);margin:.4rem .5rem}
+.sb-section{
+  font-size:.62rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--txt4);
+  padding:.5rem .65rem .2rem;white-space:nowrap;overflow:hidden;
+}
+.sidebar.collapsed .sb-section{display:none}
+
+.sb-bottom{
+  padding:.6rem .5rem;border-top:1px solid var(--bdr);
+  display:flex;flex-direction:column;gap:.1rem;
+}
+.sb-collapse-btn{
+  display:flex;align-items:center;gap:.65rem;
+  padding:.45rem .65rem;border-radius:var(--rs);
+  color:var(--txt4);font-size:.78rem;cursor:pointer;
+  transition:all var(--t);white-space:nowrap;overflow:hidden;
+  background:none;border:none;width:100%;
+}
+.sb-collapse-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;transition:transform var(--t)}
+.sidebar.collapsed .sb-collapse-btn svg{transform:rotate(180deg)}
+body.ltr .sidebar.collapsed .sb-collapse-btn svg{transform:rotate(0deg)}
+.sb-collapse-btn:hover{color:var(--txt2);background:var(--surf2)}
+.sidebar.collapsed .sb-collapse-btn span{display:none}
+.sidebar.collapsed .sb-collapse-btn{justify-content:center;padding:.45rem 0}
+
+/* ── MAIN CONTENT ──────────────────────────── */
+.main-content{
+  flex:1;min-width:0;display:flex;flex-direction:column;
+  transition:all var(--t2);
+}
+
+/* ── TOP BAR ──────────────────────────────── */
+.topbar{
+  background:var(--surf);border-bottom:1px solid var(--bdr);
+  padding:.65rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:90;
+  transition:background var(--t2),border-color var(--t2);
+  box-shadow:var(--shadow-xs);
+}
+.topbar-left{display:flex;align-items:center;gap:.75rem}
+.page-title{
+  font-size:1rem;font-weight:600;color:var(--txt);
+  display:flex;align-items:center;gap:.5rem;
+}
+.page-title svg{width:17px;height:17px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.page-breadcrumb{font-size:.72rem;color:var(--txt3);margin-top:.05rem}
+.topbar-right{display:flex;align-items:center;gap:.5rem}
+
+.pt-chip{
+  display:flex;align-items:center;gap:.45rem;
+  padding:.32rem .7rem;background:var(--green-l);
+  border:1px solid var(--green-m);border-radius:99px;
+  font-size:.73rem;font-weight:600;color:var(--green-d);
+  cursor:pointer;transition:all var(--t);
+}
+.pt-chip:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.pt-chip .dot{width:6px;height:6px;background:var(--green);border-radius:50%;flex-shrink:0}
+.pt-chip.empty{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber)}
+.pt-chip.empty .dot{background:var(--amber)}
+
+/* Icon button */
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--rm);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--surf2);border:1px solid var(--bdr);
+  color:var(--txt3);transition:all var(--t);
+}
+.icon-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.icon-btn:hover{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue)}
+.icon-btn.active{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue)}
+
+/* ── PAGE CONTAINER ──────────────────────────── */
+.page-wrap{
+  flex:1;padding:1.5rem;
+  display:none;animation:fadeUp .28s ease;
+}
+.page-wrap.active{display:block}
+@media(max-width:768px){.page-wrap{padding:1rem .85rem}}
+
+/* ═══════════════════════════════════════════
+   CARD COMPONENT
+═══════════════════════════════════════════ */
+.card{
+  background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--r);box-shadow:var(--shadow-sm);
+  transition:background var(--t2),border-color var(--t2),box-shadow var(--t);
+  overflow:hidden;
+}
+.card:hover{box-shadow:var(--shadow)}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.85rem 1.1rem;border-bottom:1px solid var(--bdr);gap:.75rem;
+}
+.card-header-left{display:flex;align-items:center;gap:.55rem}
+.ch-icon{
+  width:30px;height:30px;border-radius:var(--rm);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.ch-icon.blue{background:var(--blue-l)}
+.ch-icon.green{background:var(--green-l)}
+.ch-icon.amber{background:var(--amber-l)}
+.ch-icon.red{background:var(--red-l)}
+.ch-icon svg{width:15px;height:15px;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.ch-icon.blue svg{stroke:var(--blue);fill:none}
+.ch-icon.green svg{stroke:var(--green);fill:none}
+.ch-icon.amber svg{stroke:var(--amber);fill:none}
+.ch-icon.red svg{stroke:var(--red);fill:none}
+.ch-title{font-size:.87rem;font-weight:600;color:var(--txt)}
+.ch-sub{font-size:.68rem;color:var(--txt3);margin-top:.05rem}
+.card-body{padding:1.1rem}
+.card-footer{
+  padding:.75rem 1.1rem;border-top:1px solid var(--bdr);
+  background:var(--surf2);display:flex;align-items:center;justify-content:space-between;gap:.5rem;
+}
+
+/* ═══════════════════════════════════════════
+   FORM COMPONENTS
+═══════════════════════════════════════════ */
+.form-grid{display:flex;flex-direction:column;gap:.85rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.form-group{display:flex;flex-direction:column;gap:.3rem}
+.form-label{
+  font-size:.74rem;font-weight:600;color:var(--txt2);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.form-label .unit{font-weight:400;color:var(--txt3);font-size:.67rem}
+.form-input{
+  padding:.52rem .75rem;
+  border:1.5px solid var(--bdr);border-radius:var(--rm);
+  background:var(--surf2);color:var(--txt);
+  font-size:.88rem;font-weight:500;font-family:var(--font-num);
+  transition:border-color var(--t),box-shadow var(--t),background var(--t);
+  width:100%;outline:none;
+}
+.form-input:focus{border-color:var(--blue);box-shadow:var(--shadow-focus);background:var(--surf)}
+.form-input:hover:not(:focus){border-color:var(--bdr2)}
+.form-input.error{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(220,38,38,.12)!important}
+.form-input.changed{animation:pulse2 .3s ease}
+.form-error{font-size:.69rem;color:var(--red);display:none;align-items:center;gap:.22rem}
+.form-error.show{display:flex}
+.form-error svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.form-help{font-size:.69rem;color:var(--txt3)}
+
+/* Field divider */
+.field-section{
+  font-size:.67rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;color:var(--txt4);
+  padding:.45rem 0 .05rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.field-section::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ═══════════════════════════════════════════
+   BUTTON COMPONENTS
+═══════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.52rem 1rem;border-radius:var(--rm);
+  font-size:.82rem;font-weight:600;font-family:inherit;
+  border:1.5px solid transparent;transition:all var(--t);
+  cursor:pointer;white-space:nowrap;user-select:none;
+}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 1px 3px rgba(37,99,235,.3)}
+.btn-primary:hover{background:var(--blue-d);border-color:var(--blue-d);box-shadow:0 4px 12px rgba(37,99,235,.35);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0);box-shadow:0 1px 3px rgba(37,99,235,.3)}
+.btn-secondary{background:var(--surf);color:var(--txt2);border-color:var(--bdr)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.btn-ghost{background:transparent;color:var(--txt3);border-color:transparent}
+.btn-ghost:hover{background:var(--surf2);color:var(--txt2)}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green);box-shadow:0 1px 3px rgba(16,185,129,.3)}
+.btn-green:hover{background:var(--green-d);border-color:var(--green-d);transform:translateY(-1px);box-shadow:0 4px 12px rgba(16,185,129,.35)}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-red:hover{background:var(--red-d);transform:translateY(-1px)}
+.btn:disabled{opacity:.45;pointer-events:none}
+.btn-lg{padding:.68rem 1.4rem;font-size:.9rem;border-radius:var(--r)}
+.btn-sm{padding:.32rem .7rem;font-size:.74rem;border-radius:var(--rs)}
+.btn-full{width:100%;padding:.65rem}
+
+/* ═══════════════════════════════════════════
+   TOGGLE / SWITCH
+═══════════════════════════════════════════ */
+.toggle-group{
+  display:flex;background:var(--surf2);border:1px solid var(--bdr);
+  border-radius:var(--rm);padding:.2rem;gap:.15rem;
+}
+.toggle-opt{
+  flex:1;padding:.36rem .5rem;border-radius:var(--rs);
+  font-size:.76rem;font-weight:500;color:var(--txt3);
+  cursor:pointer;text-align:center;transition:all var(--t);user-select:none;
+}
+.toggle-opt.active{background:var(--surf);color:var(--blue);font-weight:600;box-shadow:var(--shadow-xs);border-radius:var(--rs)}
+
+/* Switch */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.switch-label{font-size:.82rem;font-weight:500;color:var(--txt2)}
+.switch-sub{font-size:.69rem;color:var(--txt3)}
+.switch{
+  position:relative;width:38px;height:22px;flex-shrink:0;
+}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch-track{
+  position:absolute;inset:0;background:var(--bdr2);border-radius:99px;
+  cursor:pointer;transition:background var(--t);
+}
+.switch-track::before{
+  content:'';position:absolute;width:16px;height:16px;
+  left:3px;top:3px;background:#fff;border-radius:50%;
+  transition:transform var(--t);box-shadow:var(--shadow-xs);
+}
+.switch input:checked+.switch-track{background:var(--blue)}
+.switch input:checked+.switch-track::before{transform:translateX(16px)}
+body.rtl .switch input:checked+.switch-track::before,
+[dir=rtl] .switch input:checked+.switch-track::before{transform:translateX(-16px)}
+
+/* ═══════════════════════════════════════════
+   BADGE
+═══════════════════════════════════════════ */
+.badge{
+  display:inline-flex;align-items:center;gap:.25rem;
+  padding:.18rem .58rem;border-radius:99px;
+  font-size:.68rem;font-weight:600;letter-spacing:.01em;
+}
+.badge svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.badge-green{background:var(--green-l);color:var(--green-d);border:1px solid var(--green-m)}
+.badge-blue{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-m)}
+.badge-amber{background:var(--amber-l);color:var(--amber-d);border:1px solid var(--amber-m)}
+.badge-red{background:var(--red-l);color:var(--red-d);border:1px solid var(--red-m)}
+.badge-slate{background:var(--surf2);color:var(--slate);border:1px solid var(--bdr)}
+
+/* ═══════════════════════════════════════════
+   ALERT COMPONENT
+═══════════════════════════════════════════ */
+.alert{
+  padding:.7rem .9rem;border-radius:var(--rm);
+  display:flex;align-items:flex-start;gap:.55rem;
+  border:1px solid;animation:fadeIn .25s ease;
+  font-size:.8rem;
+}
+.alert svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;margin-top:.15rem}
+.alert-title{font-weight:600;margin-bottom:.18rem;font-size:.8rem}
+.alert-body{font-size:.75rem;opacity:.9;line-height:1.45}
+.alert-green{background:var(--green-l);border-color:var(--green-m);color:var(--green-d)}
+.alert-blue{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue-d)}
+.alert-amber{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber-d)}
+.alert-red{background:var(--red-l);border-color:var(--red-m);color:var(--red-d)}
+
+/* ═══════════════════════════════════════════
+   SECTION GRID
+═══════════════════════════════════════════ */
+.section-grid{display:grid;gap:1.1rem}
+.col-2{grid-template-columns:1fr 1fr}
+.col-3{grid-template-columns:1fr 1fr 1fr}
+.col-lr{grid-template-columns:380px 1fr}
+@media(max-width:960px){.col-lr{grid-template-columns:1fr}}
+@media(max-width:700px){.col-2,.col-3{grid-template-columns:1fr}}
+
+/* ═══════════════════════════════════════════
+   PATIENT SUMMARY BAR
+═══════════════════════════════════════════ */
+.patient-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:.75rem;padding:.85rem 1.1rem;flex-wrap:wrap;
+}
+.pb-left{display:flex;align-items:center;gap:.85rem}
+.pb-avatar{
+  width:40px;height:40px;border-radius:99px;
+  background:var(--blue-l);border:2px solid var(--blue-m);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pb-avatar svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.pb-info .pb-name{font-size:.88rem;font-weight:600;color:var(--txt)}
+.pb-info .pb-type{font-size:.72rem;color:var(--txt3);margin-top:.08rem}
+.pb-stats{display:flex;gap:1.2rem;flex-wrap:wrap}
+.pb-stat{text-align:center}
+.pb-stat .pbs-label{font-size:.65rem;color:var(--txt3);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.pb-stat .pbs-val{font-size:.9rem;font-weight:700;color:var(--txt);font-family:var(--font-num);margin-top:.05rem}
+.pb-stat .pbs-val span{font-size:.65rem;color:var(--txt3);font-weight:400}
+.pb-divider{width:1px;height:28px;background:var(--bdr)}
+
+/* ═══════════════════════════════════════════
+   GLUCOSE BAR
+═══════════════════════════════════════════ */
+.glucose-bar-wrap{padding:.5rem 0}
+.gbar-labels{display:flex;justify-content:space-between;margin-bottom:.3rem}
+.gbar-left{display:flex;align-items:center;gap:.4rem}
+.gbar-title{font-size:.73rem;font-weight:600;color:var(--txt3)}
+.gbar-value{font-size:.82rem;font-weight:700;font-family:var(--font-num);transition:color var(--t)}
+.gbar-track{
+  height:8px;background:var(--surf3);border-radius:99px;
+  overflow:hidden;border:1px solid var(--bdr);
+}
+.gbar-fill{height:100%;border-radius:99px;transition:width .5s ease,background .3s}
+.gbar-zones{display:flex;justify-content:space-between;margin-top:.25rem}
+.gbar-zone{font-size:.62rem;color:var(--txt4)}
+
+/* ═══════════════════════════════════════════
+   DOSE RESULT DISPLAY
+═══════════════════════════════════════════ */
+.dose-result-card{
+  background:linear-gradient(135deg,#1D4ED8 0%,#2563EB 50%,#3B82F6 100%);
+  border:none;border-radius:var(--r);
+  box-shadow:0 4px 20px rgba(37,99,235,.35);
+  padding:1.5rem;text-align:center;
+  position:relative;overflow:hidden;
+}
+.dose-result-card::before{
+  content:'';position:absolute;
+  width:160px;height:160px;border-radius:50%;
+  background:rgba(255,255,255,.06);
+  top:-40px;left:-30px;
+}
+.dose-result-card::after{
+  content:'';position:absolute;
+  width:100px;height:100px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  bottom:-20px;right:10%;
+}
+.dr-label{font-size:.75rem;color:rgba(255,255,255,.75);font-weight:500;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.06em}
+.dr-value{
+  font-size:4rem;font-weight:800;color:#fff;
+  font-family:var(--font-num);line-height:1;
+  letter-spacing:-.03em;
+  animation:countUp .35s ease;
+  position:relative;z-index:1;
+}
+.dr-unit{font-size:.88rem;color:rgba(255,255,255,.8);margin-top:.3rem;font-weight:500}
+.dr-sub{
+  display:flex;gap:1.5rem;justify-content:center;
+  margin-top:1.1rem;padding-top:.9rem;
+  border-top:1px solid rgba(255,255,255,.15);
+}
+.dr-sub-item{text-align:center}
+.dr-sub-label{font-size:.65rem;color:rgba(255,255,255,.65);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.dr-sub-val{font-size:1.2rem;font-weight:700;color:#fff;font-family:var(--font-num);margin-top:.15rem}
+.dose-empty{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2.2rem;gap:.6rem;color:var(--txt4);
+}
+.dose-empty svg{width:36px;height:36px;stroke:currentColor;opacity:.5;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dose-empty p{font-size:.82rem;text-align:center;line-height:1.5}
+
+/* ═══════════════════════════════════════════
+   CALCULATION BREAKDOWN (COLLAPSIBLE)
+═══════════════════════════════════════════ */
+.collapse-toggle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem 1.1rem;cursor:pointer;user-select:none;
+  border-top:1px solid var(--bdr);transition:background var(--t);
+}
+.collapse-toggle:hover{background:var(--surf2)}
+.collapse-toggle-left{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--txt3);font-weight:500}
+.collapse-toggle-left svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.collapse-icon{width:14px;height:14px;stroke:var(--txt4);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform var(--t);flex-shrink:0}
+.collapse-icon.open{transform:rotate(180deg)}
+.collapse-body{overflow:hidden;transition:max-height .3s ease,opacity .3s ease}
+.collapse-body.closed{max-height:0!important;opacity:0}
+
+.bk-list{display:flex;flex-direction:column;gap:.32rem;padding:.85rem 1.1rem}
+.bk-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.42rem .75rem;border-radius:var(--rm);background:var(--surf2);
+  border-right:2.5px solid var(--bdr2);font-size:.78rem;gap:.5rem;
+}
+body.ltr .bk-row{border-right:none;border-left:2.5px solid var(--bdr2)}
+.bk-row.accent{border-color:var(--blue)}
+.bk-row.total{border-color:var(--green);background:var(--green-l);font-weight:600}
+.bk-lhs{flex:1}
+.bk-name{color:var(--txt);font-weight:500}
+.bk-formula{font-family:var(--mono);font-size:.69rem;color:var(--txt3);margin-top:.06rem}
+.bk-res{font-family:var(--mono);font-weight:700;color:var(--blue);white-space:nowrap;font-size:.82rem}
+.bk-row.total .bk-res{color:var(--green-d);font-size:.9rem}
+
+/* ═══════════════════════════════════════════
+   MEAL SELECTOR
+═══════════════════════════════════════════ */
+.meal-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem}
+.meal-opt{
+  padding:.6rem .35rem;border:1.5px solid var(--bdr);border-radius:var(--rm);
+  background:var(--surf2);cursor:pointer;text-align:center;
+  transition:all var(--t);user-select:none;
+}
+.meal-icon{font-size:.95rem;margin-bottom:.2rem;line-height:1}
+.meal-label{font-size:.73rem;font-weight:500;color:var(--txt3)}
+.meal-opt:hover{border-color:var(--blue-m);background:var(--blue-l)}
+.meal-opt:hover .meal-label{color:var(--blue)}
+.meal-opt.active{border-color:var(--blue);background:var(--blue-l)}
+.meal-opt.active .meal-label{color:var(--blue);font-weight:600}
+
+/* ═══════════════════════════════════════════
+   SETUP — TYPE SELECTOR
+═══════════════════════════════════════════ */
+.type-selector{display:grid;grid-template-columns:1fr 1fr;gap:.55rem}
+.type-opt{
+  padding:.75rem .6rem;border:1.5px solid var(--bdr);border-radius:var(--r);
+  background:var(--surf2);cursor:pointer;text-align:center;
+  transition:all var(--t);user-select:none;
+}
+.type-icon{font-size:1.4rem;margin-bottom:.25rem;line-height:1}
+.type-label{font-size:.82rem;font-weight:600;color:var(--txt2)}
+.type-sub{font-size:.68rem;color:var(--txt3);margin-top:.08rem}
+.type-opt:hover{border-color:var(--blue-m);background:var(--blue-l)}
+.type-opt.active{border-color:var(--blue);background:var(--blue-l);box-shadow:var(--shadow-focus)}
+.type-opt.active .type-label{color:var(--blue)}
+
+/* ═══════════════════════════════════════════
+   STAT CARDS (SETUP RESULTS)
+═══════════════════════════════════════════ */
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:1rem 1.1rem;border-top:1px solid var(--bdr);background:var(--surf2)}
+.stat-card{
+  padding:.7rem .85rem;background:var(--surf);border:1px solid var(--bdr);
+  border-radius:var(--rm);text-align:center;
+  transition:box-shadow var(--t);
+}
+.stat-card:hover{box-shadow:var(--shadow-sm)}
+.stat-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--txt3);margin-bottom:.25rem}
+.stat-val{font-size:1.5rem;font-weight:800;font-family:var(--font-num);color:var(--blue);line-height:1}
+.stat-val.green{color:var(--green-d)}
+.stat-val.primary{font-size:1.85rem}
+.stat-unit{font-size:.63rem;color:var(--txt3);margin-top:.18rem}
+
+/* ═══════════════════════════════════════════
+   HISTORY PAGE
+═══════════════════════════════════════════ */
+.history-toolbar{
+  display:flex;align-items:center;gap:.65rem;
+  margin-bottom:1rem;flex-wrap:wrap;
+}
+.search-input-wrap{position:relative;flex:1;min-width:180px}
+.search-input{
+  width:100%;padding:.48rem .75rem .48rem 2.2rem;
+  border:1.5px solid var(--bdr);border-radius:var(--rm);
+  background:var(--surf);color:var(--txt);font-size:.82rem;font-family:inherit;outline:none;
+  transition:border-color var(--t),box-shadow var(--t);
+}
+.search-input:focus{border-color:var(--blue);box-shadow:var(--shadow-focus)}
+.search-icon{
+  position:absolute;right:.7rem;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;stroke:var(--txt3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;
+}
+body.ltr .search-icon{right:auto;left:.7rem}
+body.ltr .search-input{padding:.48rem 2.2rem .48rem .75rem}
+
+.date-filter{
+  padding:.47rem .7rem;border:1.5px solid var(--bdr);border-radius:var(--rm);
+  background:var(--surf);color:var(--txt);font-size:.8rem;
+  font-family:inherit;outline:none;cursor:pointer;
+  transition:border-color var(--t);
+}
+.date-filter:focus{border-color:var(--blue)}
+
+.history-table{width:100%;border-collapse:separate;border-spacing:0}
+.history-table th{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--txt3);padding:.58rem .85rem;text-align:right;
+  border-bottom:1px solid var(--bdr);background:var(--surf2);
+}
+body.ltr .history-table th{text-align:left}
+.history-table td{
+  padding:.65rem .85rem;font-size:.8rem;color:var(--txt2);
+  border-bottom:1px solid var(--bdr);vertical-align:middle;
+  transition:background var(--t);
+}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:var(--surf2)}
+.history-table tr{cursor:pointer;transition:background var(--t)}
+.ht-dose{font-weight:700;font-family:var(--font-num);color:var(--blue);font-size:.9rem}
+.ht-glucose{font-family:var(--font-num);font-weight:600}
+.ht-time{font-size:.72rem;color:var(--txt3)}
+.ht-meal-tag{
+  display:inline-flex;align-items:center;gap:.25rem;
+  padding:.12rem .5rem;border-radius:99px;
+  font-size:.67rem;font-weight:600;
+  background:var(--blue-l);color:var(--blue);
+}
+.history-empty{
+  display:flex;flex-direction:column;align-items:center;
+  padding:3rem 1rem;color:var(--txt4);gap:.7rem;
+}
+.history-empty svg{width:40px;height:40px;stroke:currentColor;opacity:.4;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.history-empty p{font-size:.82rem;text-align:center;line-height:1.5}
+
+/* ═══════════════════════════════════════════
+   SETTINGS PAGE
+═══════════════════════════════════════════ */
+.settings-section{margin-bottom:1.4rem}
+.settings-section:last-child{margin-bottom:0}
+.settings-title{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--txt3);margin-bottom:.65rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+.settings-title::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.mode-info{
+  padding:.75rem .9rem;background:var(--blue-l);border:1px solid var(--blue-m);
+  border-radius:var(--rm);font-size:.78rem;color:var(--blue-d);
+  line-height:1.5;margin-top:.65rem;
+}
+.mode-info-manual{background:var(--amber-l);border-color:var(--amber-m);color:var(--amber-d)}
+
+/* ═══════════════════════════════════════════
+   STEPS PROGRESS
+═══════════════════════════════════════════ */
+.steps-bar{display:flex;gap:0;margin-bottom:1.4rem}
+.step-item{
+  flex:1;display:flex;align-items:center;gap:.5rem;
+  padding:.55rem .65rem;background:var(--surf);border:1px solid var(--bdr);
+  font-size:.72rem;font-weight:500;color:var(--txt3);
+  border-left:none;position:relative;
+}
+.step-item:first-child{border-radius:var(--rm) 0 0 var(--rm);border-left:1px solid var(--bdr)}
+body.ltr .step-item:first-child{border-radius:0 var(--rm) var(--rm) 0;border-left:none;border-right:1px solid var(--bdr)}
+.step-item:last-child{border-radius:0 var(--rm) var(--rm) 0}
+body.ltr .step-item:last-child{border-radius:var(--rm) 0 0 var(--rm)}
+.step-num{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--surf2);border:1.5px solid var(--bdr2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.67rem;font-weight:700;flex-shrink:0;transition:all var(--t2);
+}
+.step-item.active{color:var(--blue);background:var(--blue-l);border-color:var(--blue-m)}
+.step-item.active .step-num{background:var(--blue);border-color:var(--blue);color:#fff}
+.step-item.done .step-num{background:var(--green);border-color:var(--green);color:#fff}
+.step-item.done{color:var(--green-d)}
+
+/* ═══════════════════════════════════════════
+   PRIVACY NOTICE
+═══════════════════════════════════════════ */
+.privacy-bar{
+  background:var(--blue);color:rgba(255,255,255,.92);
+  padding:.42rem 1.5rem;font-size:.72rem;
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  position:relative;
+}
+.privacy-bar svg{width:12px;height:12px;stroke:rgba(255,255,255,.85);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.privacy-close{
+  position:absolute;left:1rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:rgba(255,255,255,.7);
+  font-size:.85rem;cursor:pointer;padding:.1rem .25rem;
+  transition:color var(--t);
+}
+body.ltr .privacy-close{left:auto;right:1rem}
+.privacy-close:hover{color:#fff}
+
+/* ═══════════════════════════════════════════
+   PRINT VIEW
+═══════════════════════════════════════════ */
+@media print{body>*:not(#prw){display:none!important}#prw{display:block!important;padding:1.5rem}}
+#prw{display:none}
+
+/* ═══════════════════════════════════════════
+   MODAL (HISTORY DETAIL)
+═══════════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(15,23,42,.45);
+  z-index:1000;display:flex;align-items:center;justify-content:center;
+  padding:1rem;backdrop-filter:blur(4px);
+  animation:fadeIn .2s ease;
+}
+.modal-overlay.hidden{display:none}
+.modal{
+  background:var(--surf);border-radius:var(--r);
+  box-shadow:var(--shadow-lg);width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+  animation:fadeUp .25s ease;
+  border:1px solid var(--bdr);
+}
+.modal-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.1rem;border-bottom:1px solid var(--bdr);
+}
+.modal-title{font-size:.9rem;font-weight:600;color:var(--txt)}
+.modal-close{
+  width:28px;height:28px;border-radius:var(--rs);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--txt3);transition:all var(--t);
+  background:none;border:none;cursor:pointer;
+}
+.modal-close:hover{background:var(--surf2);color:var(--txt)}
+.modal-close svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.modal-body{padding:1.1rem}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — Sidebar Mobile
+═══════════════════════════════════════════ */
+@media(max-width:768px){
+  .sidebar{position:fixed;right:0;top:0;z-index:200;transform:translateX(100%);transition:transform var(--t2);box-shadow:var(--shadow-lg)}
+  body.ltr .sidebar{right:auto;left:0;transform:translateX(-100%)}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .main-content{width:100%}
+  .topbar{padding:.55rem 1rem}
+  .page-wrap{padding:.85rem}
+  .section-grid.col-lr{grid-template-columns:1fr}
+  .dr-value{font-size:3rem}
+  .stat-row{grid-template-columns:1fr 1fr 1fr;gap:.4rem}
+  .history-table{font-size:.75rem}
+  #mobile-menu-btn{display:flex!important}
+}
+.mobile-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:150;
+}
+.mobile-overlay.show{display:block}
+#mobile-menu-btn{display:none}
+</style>
+</head>
+<body>
+
+<!-- Privacy bar -->
+<div id="pvb" class="privacy-bar">
+  <svg viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" d="M12.5 10a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zm-2.5 6.5c-4.14 0-7.5-2.93-7.5-6.5S5.86 3.5 10 3.5s7.5 2.93 7.5 6.5-3.36 6.5-7.5 6.5z"/></svg>
+  <span id="pvt">هذا التطبيق يعمل محليًا بالكامل — لا يُرسَل أي بيان خارج جهازك</span>
+  <button class="privacy-close" onclick="this.closest('#pvb').remove()">✕</button>
+</div>
+
+<!-- Mobile overlay -->
+<div class="mobile-overlay" id="mob-overlay" onclick="App.closeSidebar()"></div>
+
+<!-- App Shell -->
+<div class="app-shell">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <a class="sb-logo" href="#" onclick="return false">
+      <div class="sb-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>
+      </div>
+      <div class="sb-logo-text">
+        <div class="sb-logo-name">InsuCalc</div>
+        <div class="sb-logo-tag" id="sb-tag">حاسبة الأنسولين</div>
+      </div>
+    </a>
+
+    <nav class="sb-nav">
+      <div class="nav-item active" data-page="calc" onclick="App.nav('calc')">
+        <svg viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+        <span id="nav-calc">حساب الجرعة</span>
+      </div>
+      <div class="nav-item" data-page="history" onclick="App.nav('history')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        <span id="nav-hist">السجل السريري</span>
+        <span class="nav-badge" id="hist-badge" style="display:none">0</span>
+      </div>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section" id="sb-sec1">الإعدادات</div>
+
+      <div class="nav-item" data-page="setup" onclick="App.nav('setup')">
+        <svg viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span id="nav-setup">إعداد المريض</span>
+      </div>
+      <div class="nav-item" data-page="settings" onclick="App.nav('settings')">
+        <svg viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span id="nav-settings">الإعدادات</span>
+      </div>
+    </nav>
+
+    <div class="sb-bottom">
+      <button class="sb-collapse-btn" onclick="App.toggleSidebar()" id="collapse-btn">
+        <svg viewBox="0 0 24 24"><path d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+        <span id="collapse-lbl">طي القائمة</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <div class="main-content">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="icon-btn" id="mobile-menu-btn" onclick="App.openSidebar()" style="display:none">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div>
+          <div class="page-title" id="tb-title">
+            <svg viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            <span id="tb-title-text">حساب الجرعة</span>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="pt-chip empty" id="pt-chip" onclick="App.nav('setup')">
+          <div class="dot"></div>
+          <span id="pt-chip-text">لا يوجد مريض</span>
+        </div>
+        <button class="icon-btn" onclick="App.toggleLang()" title="Language">
+          <svg viewBox="0 0 24 24"><path d="M3 5h12M9 3v2m-3 9l3-6 3 6m-5.5-2h5M13 5c0 7-3 11-5.5 13M15 15c-.54-.6-3.5-2.38-4.07-4"/></svg>
+        </button>
+        <button class="icon-btn" onclick="App.toggleTheme()" id="theme-btn" title="Theme">
+          <svg viewBox="0 0 24 24" id="theme-icon"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: SETUP ══ -->
+    <div class="page-wrap" id="page-setup">
+      <div style="max-width:680px;margin:0 auto">
+        <div class="steps-bar" id="setup-steps">
+          <div class="step-item active" id="stp1"><div class="step-num" id="sn1">1</div><span id="stl1">بيانات المريض</span></div>
+          <div class="step-item" id="stp2"><div class="step-num" id="sn2">2</div><span id="stl2">المعاملات المحسوبة</span></div>
+          <div class="step-item" id="stp3"><div class="step-num" id="sn3">3</div><span id="stl3">الحفظ</span></div>
+        </div>
+
+        <!-- Input card -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="ch-icon blue">
+                <svg viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              </div>
+              <div>
+                <div class="ch-title" id="s-inp-t">بيانات المريض</div>
+                <div class="ch-sub" id="s-inp-s">الوزن ونوع المريض لحساب المعاملات</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" for="sw">
+                  <span id="sl-w">وزن المريض</span>
+                  <span class="unit">kg</span>
+                </label>
+                <input type="number" id="sw" class="form-input" placeholder="70" min="1" max="300" step="0.5" />
+                <span class="form-error" id="ew">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  <span id="ew-t">يجب إدخال وزن صحيح أكبر من صفر</span>
+                </span>
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span id="sl-pt">نوع المريض</span></label>
+                <div class="type-selector">
+                  <div class="type-opt active" data-type="adult" onclick="App.selectType(this)">
+                    <div class="type-icon">🧑</div>
+                    <div class="type-label" id="t-adult">بالغ</div>
+                    <div class="type-sub" id="t-adult-s">≥ 18 سنة</div>
+                  </div>
+                  <div class="type-opt" data-type="child" onclick="App.selectType(this)">
+                    <div class="type-icon">👧</div>
+                    <div class="type-label" id="t-child">طفل</div>
+                    <div class="type-sub" id="t-child-s">دون 18</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Live stats -->
+          <div class="stat-row" id="stat-row">
+            <div class="stat-card">
+              <div class="stat-label">TDD</div>
+              <div class="stat-val primary" id="st-tdd">—</div>
+              <div class="stat-unit" id="st-tdd-u">وحدة/يوم</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">ICR</div>
+              <div class="stat-val" id="st-icr">—</div>
+              <div class="stat-unit" id="st-icr-u">g/unit</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">ISF</div>
+              <div class="stat-val green" id="st-isf">—</div>
+              <div class="stat-unit">mg/dL/u</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="card" id="setup-bk" style="display:none;margin-bottom:1rem">
+          <div class="card-header">
+            <div class="card-header-left">
+              <div class="ch-icon blue">
+                <svg viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </div>
+              <div>
+                <div class="ch-title" id="sbk-t">خطوات الحساب</div>
+                <div class="ch-sub" id="sbk-s">معادلات التقدير الإكلينيكي</div>
+              </div>
+            </div>
+          </div>
+          <div class="bk-list" id="setup-bk-list"></div>
+        </div>
+
+        <!-- Alerts -->
+        <div id="setup-alerts" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem"></div>
+
+        <!-- Save button -->
+        <button class="btn btn-green btn-full btn-lg" onclick="App.saveConfig()" id="save-btn" disabled>
+          <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          <span id="save-lbl">حفظ والانتقال إلى الحاسبة</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: CALC ══ -->
+    <div class="page-wrap" id="page-calc">
+
+      <!-- Patient bar -->
+      <div class="card" style="margin-bottom:1.1rem;display:none" id="patient-bar">
+        <div class="patient-bar">
+          <div class="pb-left">
+            <div class="pb-avatar">
+              <svg viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div class="pb-info">
+              <div class="pb-name" id="pb-name">—</div>
+              <div class="pb-type" id="pb-type">—</div>
+            </div>
+            <div class="pb-divider"></div>
+            <div class="pb-stats">
+              <div class="pb-stat">
+                <div class="pbs-label">TDD</div>
+                <div class="pbs-val" id="pbs-tdd">— <span>u/day</span></div>
+              </div>
+              <div class="pb-stat">
+                <div class="pbs-label">ICR</div>
+                <div class="pbs-val" id="pbs-icr">1:— <span>g</span></div>
+              </div>
+              <div class="pb-stat">
+                <div class="pbs-label">ISF</div>
+                <div class="pbs-val" id="pbs-isf">— <span>mg/dL</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem" id="pb-badge-area">
+            <button class="btn btn-secondary btn-sm" onclick="App.nav('setup')">
+              <svg viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+              <span id="pb-edit">تعديل</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calc mode indicator (manual override) -->
+      <div class="alert alert-amber" id="manual-mode-alert" style="display:none;margin-bottom:1rem">
+        <svg viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div>
+          <div class="alert-title" id="manual-alert-t">وضع الإدخال اليدوي مفعّل</div>
+          <div class="alert-body" id="manual-alert-b">المعاملات المُدخلة يدويًا تتجاوز الحسابات التلقائية</div>
+        </div>
+      </div>
+
+      <div class="section-grid col-lr">
+        <!-- LEFT: Input form -->
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-left">
+                <div class="ch-icon blue">
+                  <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div class="ch-title" id="cf-t">بيانات الجرعة</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="cdate"><span id="cl-date">التاريخ</span></label>
+                    <input type="date" id="cdate" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ctime"><span id="cl-time">الوقت</span></label>
+                    <input type="time" id="ctime" class="form-input" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label"><span id="cl-meal">نوع الوجبة</span></label>
+                  <div class="meal-selector">
+                    <div class="meal-opt active" data-meal="breakfast" onclick="App.selectMeal(this)">
+                      <div class="meal-icon">🍳</div>
+                      <div class="meal-label" id="mb">إفطار</div>
+                    </div>
+                    <div class="meal-opt" data-meal="lunch" onclick="App.selectMeal(this)">
+                      <div class="meal-icon">🥗</div>
+                      <div class="meal-label" id="ml">غداء</div>
+                    </div>
+                    <div class="meal-opt" data-meal="dinner" onclick="App.selectMeal(this)">
+                      <div class="meal-icon">🍽</div>
+                      <div class="meal-label" id="md">عشاء</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field-section" id="fdiv-glu">قياسات الجلوكوز</div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="cglu">
+                      <span id="cl-glu">سكر الدم</span>
+                      <span class="unit">mg/dL</span>
+                    </label>
+                    <input type="number" id="cglu" class="form-input" placeholder="120" min="1" step="1" />
+                    <span class="form-error" id="ecglu">
+                      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <span id="ecglu-t">يجب أن تكون > 0</span>
+                    </span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ctar">
+                      <span id="cl-tar">الهدف</span>
+                      <span class="unit">mg/dL</span>
+                    </label>
+                    <input type="number" id="ctar" class="form-input" placeholder="100" min="1" step="1" />
+                    <span class="form-error" id="ectar">
+                      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      <span id="ectar-t">يجب أن تكون > 0</span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Glucose bar -->
+                <div class="glucose-bar-wrap" id="gbar" style="display:none">
+                  <div class="gbar-labels">
+                    <div class="gbar-left">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                      <span class="gbar-title" id="gbar-lbl">مستوى الجلوكوز</span>
+                    </div>
+                    <span class="gbar-value" id="gbar-val">—</span>
+                  </div>
+                  <div class="gbar-track"><div class="gbar-fill" id="gbar-fill" style="width:0%"></div></div>
+                  <div class="gbar-zones">
+                    <span id="gz-low">نقص &lt;70</span>
+                    <span id="gz-norm">طبيعي</span>
+                    <span id="gz-high">ارتفاع &gt;250</span>
+                  </div>
+                </div>
+
+                <div class="field-section" id="fdiv-carb">الكربوهيدرات</div>
+                <div class="form-group">
+                  <label class="form-label" for="ccarb">
+                    <span id="cl-carb">الكربوهيدرات المستهلكة</span>
+                    <span class="unit">g</span>
+                  </label>
+                  <input type="number" id="ccarb" class="form-input" placeholder="60" min="0" step="1" />
+                  <span class="form-error" id="eccarb">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span id="eccarb-t">يجب أن تكون ≥ 0</span>
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual override (if manual mode) -->
+          <div class="card" id="manual-override-card" style="display:none">
+            <div class="card-header">
+              <div class="card-header-left">
+                <div class="ch-icon amber">
+                  <svg viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </div>
+                <div class="ch-title" id="mo-t">معاملات يدوية</div>
+              </div>
+              <span class="badge badge-amber" id="manual-badge">يدوي</span>
+            </div>
+            <div class="card-body">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="micr">
+                    <span id="ml-icr">نسبة الكربوهيدرات ICR</span>
+                    <span class="unit">g/u</span>
+                  </label>
+                  <input type="number" id="micr" class="form-input" placeholder="12" min="0.1" step="0.5" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="misf">
+                    <span id="ml-isf">عامل التصحيح ISF</span>
+                    <span class="unit">mg/dL/u</span>
+                  </label>
+                  <input type="number" id="misf" class="form-input" placeholder="40" min="0.1" step="1" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Results -->
+        <div style="display:flex;flex-direction:column;gap:1rem">
+
+          <!-- Dose result -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-left">
+                <div class="ch-icon green">
+                  <svg viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                </div>
+                <div class="ch-title" id="cr-t">نتيجة الجرعة</div>
+              </div>
+              <div id="dose-badge"></div>
+            </div>
+            <div id="dose-empty" class="dose-empty">
+              <svg viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+              <p id="dose-empty-t">أدخل بيانات الوجبة لحساب الجرعة</p>
+            </div>
+            <div id="dose-result" style="display:none">
+              <div class="dose-result-card">
+                <div class="dr-label" id="dr-lbl">الجرعة الإجمالية</div>
+                <div class="dr-value" id="dr-val">—</div>
+                <div class="dr-unit" id="dr-unit">وحدة أنسولين</div>
+                <div class="dr-sub">
+                  <div class="dr-sub-item">
+                    <div class="dr-sub-label" id="dr-meal-lbl">جرعة الوجبة</div>
+                    <div class="dr-sub-val" id="dr-meal">—</div>
+                  </div>
+                  <div class="dr-sub-item">
+                    <div class="dr-sub-label" id="dr-corr-lbl">جرعة التصحيح</div>
+                    <div class="dr-sub-val" id="dr-corr">—</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Breakdown (collapsible) -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-left">
+                <div class="ch-icon blue">
+                  <svg viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="ch-title" id="cbk-t">خطوات الحساب</div>
+              </div>
+            </div>
+            <div id="cbk-empty" style="padding:1.2rem;text-align:center;color:var(--txt4);font-size:.78rem" id="cbk-empty-t">—</div>
+            <div id="cbk-list" class="bk-list" style="display:none"></div>
+            <div id="cbk-toggle" class="collapse-toggle" style="display:none" onclick="App.toggleBreakdown()">
+              <div class="collapse-toggle-left">
+                <svg viewBox="0 0 24 24"><path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span id="bk-toggle-lbl">إظهار تفاصيل الحساب</span>
+              </div>
+              <svg class="collapse-icon" id="bk-chevron" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+            </div>
+          </div>
+
+          <!-- Alerts -->
+          <div id="alerts-container" style="display:flex;flex-direction:column;gap:.55rem"></div>
+
+          <!-- Export -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-left">
+                <div class="ch-icon green">
+                  <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+                <div class="ch-title" id="cexp-t">تصدير التقرير</div>
+              </div>
+            </div>
+            <div style="padding:.85rem 1.1rem;display:flex;gap:.5rem;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="App.downloadPDF()" style="flex:1;min-width:130px">
+                <svg viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span id="btn-pdf">تحميل PDF</span>
+              </button>
+              <button class="btn btn-secondary" onclick="App.printView()" style="flex:1;min-width:100px">
+                <svg viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm0 0V9a2 2 0 012-2h0"/></svg>
+                <span id="btn-print">طباعة</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="App.clearCalc()" style="padding:.52rem .75rem">
+                <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span id="btn-clr">مسح</span>
+              </button>
+            </div>
+            <div style="padding:0 1.1rem .85rem;font-size:.68rem;color:var(--txt3)" id="exp-note">جميع البيانات تُعالج محليًا — لا ترسل خارج جهازك</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: HISTORY ══ -->
+    <div class="page-wrap" id="page-history">
+      <div class="history-toolbar">
+        <div class="search-input-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" class="search-input" id="hist-search" placeholder="بحث..." oninput="App.filterHistory()" />
+        </div>
+        <input type="date" class="date-filter" id="hist-date" onchange="App.filterHistory()" title="تصفية بالتاريخ" />
+        <button class="btn btn-secondary btn-sm" onclick="App.clearHistoryFilter()">
+          <svg viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+          <span id="btn-clr-f">مسح الفلتر</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="App.exportHistoryCSV()">
+          <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span id="btn-csv">تصدير CSV</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="App.clearHistory()" style="color:var(--red)">
+          <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span id="btn-clr-h">مسح السجل</span>
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <div class="ch-icon blue">
+              <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            </div>
+            <div>
+              <div class="ch-title" id="hist-t">السجل السريري</div>
+              <div class="ch-sub" id="hist-s">جميع حسابات الجرعة المحفوظة</div>
+            </div>
+          </div>
+          <span class="badge badge-slate" id="hist-count-badge">0 سجل</span>
+        </div>
+        <div id="hist-table-wrap" style="overflow-x:auto">
+          <table class="history-table" id="hist-table">
+            <thead>
+              <tr>
+                <th id="ht-time">التاريخ / الوقت</th>
+                <th id="ht-meal">الوجبة</th>
+                <th id="ht-glu">السكر</th>
+                <th id="ht-carb">الكربوهيدرات</th>
+                <th id="ht-meal-d">جرعة الوجبة</th>
+                <th id="ht-corr-d">جرعة التصحيح</th>
+                <th id="ht-total">الجرعة الإجمالية</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="hist-body"></tbody>
+          </table>
+        </div>
+        <div id="hist-empty" class="history-empty" style="display:none">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <p id="hist-empty-t">لا توجد سجلات محفوظة بعد — ابدأ بحساب جرعة</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: SETTINGS ══ -->
+    <div class="page-wrap" id="page-settings">
+      <div style="max-width:600px">
+
+        <div class="settings-section">
+          <div class="settings-title" id="st-sec1">وضع حساب المعاملات</div>
+          <div class="card">
+            <div class="card-body">
+              <div style="margin-bottom:.85rem">
+                <div class="form-label" style="margin-bottom:.4rem" id="st-mode-l">وضع التشغيل</div>
+                <div class="toggle-group" id="mode-toggle">
+                  <div class="toggle-opt active" data-mode="auto" onclick="App.setMode('auto', this)" id="mode-auto-opt">
+                    <span id="mt-auto">تلقائي</span>
+                  </div>
+                  <div class="toggle-opt" data-mode="manual" onclick="App.setMode('manual', this)" id="mode-manual-opt">
+                    <span id="mt-manual">يدوي</span>
+                  </div>
+                </div>
+              </div>
+              <div id="mode-auto-info" class="mode-info">
+                <strong id="mia-t">الوضع التلقائي:</strong> <span id="mia-b">يستخدم بيانات المريض (الوزن والنوع) لحساب ICR و ISF تلقائيًا باستخدام المعادلات القياسية.</span>
+              </div>
+              <div id="mode-manual-info" class="mode-info mode-info-manual" style="display:none">
+                <strong id="mim-t">الوضع اليدوي:</strong> <span id="mim-b">يمكنك تجاوز القيم المحسوبة وإدخال نسبة الكربوهيدرات (ICR) وعامل التصحيح (ISF) يدويًا.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title" id="st-sec2">المظهر واللغة</div>
+          <div class="card">
+            <div class="card-body" style="display:flex;flex-direction:column;gap:.9rem">
+              <div class="switch-row">
+                <div>
+                  <div class="switch-label" id="sl-dark">الوضع الداكن</div>
+                  <div class="switch-sub" id="sl-dark-s">خلفية هادئة وأقل إجهاد للعين</div>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="dark-switch" onchange="App.onDarkSwitch(this)">
+                  <span class="switch-track"></span>
+                </label>
+              </div>
+              <div style="height:1px;background:var(--bdr)"></div>
+              <div class="switch-row">
+                <div>
+                  <div class="switch-label" id="sl-lang">اللغة / Language</div>
+                  <div class="switch-sub" id="sl-lang-s">التبديل بين العربية والإنجليزية</div>
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="App.toggleLang()" id="lang-btn">EN</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title" id="st-sec3">البيانات والخصوصية</div>
+          <div class="card">
+            <div class="card-body" style="display:flex;flex-direction:column;gap:.7rem">
+              <div class="alert alert-blue">
+                <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <div>
+                  <div class="alert-title" id="priv-t">التطبيق 100% محلي</div>
+                  <div class="alert-body" id="priv-b">لا يتم إرسال أي بيانات إلى خوادم خارجية. كل شيء يعمل في متصفحك فقط.</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                <button class="btn btn-secondary btn-sm" onclick="App.exportAllData()">
+                  <svg viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                  <span id="btn-exp-data">تصدير البيانات</span>
+                </button>
+                <button class="btn btn-sm" onclick="App.clearAllData()" style="color:var(--red);border:1.5px solid var(--red-m);background:var(--red-l)">
+                  <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <span id="btn-del-all">حذف كل البيانات</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-title" id="st-sec4">حول التطبيق</div>
+          <div class="card">
+            <div class="card-body" style="font-size:.8rem;color:var(--txt3);line-height:1.7">
+              <div style="font-weight:600;color:var(--txt);margin-bottom:.25rem">InsuCalc Pro v3.0</div>
+              <div id="about-t">حاسبة الجرعة الإكلينيكية للأنسولين — مصممة للاستخدام تحت إشراف طبي متخصص</div>
+              <div style="margin-top:.5rem;font-size:.72rem" id="about-dis">هذه الأداة لأغراض الحسابات المساعدة فقط. يجب دائمًا استشارة طبيب متخصص قبل إعطاء أي جرعة.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /main-content -->
+</div><!-- /app-shell -->
+
+<!-- History Detail Modal -->
+<div class="modal-overlay hidden" id="hist-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">تفاصيل الجرعة</div>
+      <button class="modal-close" onclick="App.closeModal()">
+        <svg viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div style="padding:.75rem 1.1rem;border-top:1px solid var(--bdr);display:flex;gap:.5rem">
+      <button class="btn btn-primary btn-sm" onclick="App.loadHistoryItem()" id="modal-load-btn">
+        <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        <span id="modal-load-lbl">إعادة تحميل هذه الجرعة</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" onclick="App.closeModal()">
+        <span id="modal-close-lbl">إغلاق</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Print view -->
+<div id="prw"></div>
+
+<script>
+'use strict';
+/* ═══════════════════════════════════════════════════
+   I18N
+═══════════════════════════════════════════════════ */
+const T={
+  ar:{
+    'sb-tag':'حاسبة الأنسولين','nav-calc':'حساب الجرعة','nav-hist':'السجل السريري',
+    'nav-setup':'إعداد المريض','nav-settings':'الإعدادات',
+    'collapse-lbl':'طي القائمة',
+    'tb-title-calc':'حساب الجرعة','tb-title-hist':'السجل السريري',
+    'tb-title-setup':'إعداد المريض','tb-title-settings':'الإعدادات',
+    'pt-chip-empty':'لا يوجد مريض','pt-chip-adult':'مريض بالغ','pt-chip-child':'مريض طفل',
+    's-inp-t':'بيانات المريض','s-inp-s':'الوزن ونوع المريض لحساب المعاملات',
+    'sl-w':'وزن المريض','sl-pt':'نوع المريض',
+    't-adult':'بالغ','t-adult-s':'≥ 18 سنة','t-child':'طفل','t-child-s':'دون 18',
+    'st-tdd-u':'وحدة/يوم','sbk-t':'خطوات الحساب','sbk-s':'معادلات التقدير الإكلينيكي',
+    'stl1':'بيانات المريض','stl2':'المعاملات المحسوبة','stl3':'الحفظ',
+    'save-lbl':'حفظ والانتقال إلى الحاسبة','ew-t':'يجب إدخال وزن صحيح أكبر من صفر',
+    'bk-tdd-raw':'TDD (خام)','bk-tdd-rnd':'TDD (مقرب)',
+    'bk-icr':'نسبة الكربوهيدرات ICR','bk-isf':'عامل التصحيح ISF',
+    'al-peds-t':'تنبيه: وزن منخفض','al-peds-b':'الوزن أقل من 20 كجم — تأكد من استخدام جرعة الأطفال الصحيحة',
+    'al-lowtdd-t':'تنبيه: TDD منخفض','al-lowtdd-b':'TDD أقل من 10 وحدات — راجع مع الطبيب المعالج',
+    'al-hightdd-t':'تنبيه: TDD مرتفع','al-hightdd-b':'TDD أكثر من 100 وحدة — تأكد من صحة الوزن',
+    'cf-t':'بيانات الجرعة','cl-date':'التاريخ','cl-time':'الوقت','cl-meal':'نوع الوجبة',
+    'mb':'إفطار','ml':'غداء','md':'عشاء',
+    'fdiv-glu':'قياسات الجلوكوز','cl-glu':'سكر الدم قبل الوجبة','cl-tar':'الجلوكوز المستهدف',
+    'fdiv-carb':'الكربوهيدرات','cl-carb':'الكربوهيدرات المستهلكة',
+    'gbar-lbl':'مستوى الجلوكوز','gz-low':'نقص <70','gz-norm':'طبيعي','gz-high':'ارتفاع >250',
+    'ecglu-t':'يجب أن تكون > 0','ectar-t':'يجب أن تكون > 0','eccarb-t':'يجب أن تكون ≥ 0',
+    'mo-t':'معاملات يدوية','ml-icr':'نسبة الكربوهيدرات ICR','ml-isf':'عامل التصحيح ISF',
+    'manual-badge':'يدوي','manual-alert-t':'وضع الإدخال اليدوي مفعّل',
+    'manual-alert-b':'المعاملات المُدخلة يدويًا تتجاوز الحسابات التلقائية',
+    'cr-t':'نتيجة الجرعة','dose-empty-t':'أدخل بيانات الوجبة لحساب الجرعة',
+    'dr-lbl':'الجرعة الإجمالية','dr-unit':'وحدة أنسولين',
+    'dr-meal-lbl':'جرعة الوجبة','dr-corr-lbl':'جرعة التصحيح',
+    'cbk-t':'خطوات الحساب','bk-toggle-lbl':'إظهار تفاصيل الحساب','bk-toggle-hide':'إخفاء التفاصيل',
+    'cexp-t':'تصدير التقرير','btn-pdf':'تحميل PDF','btn-print':'طباعة','btn-clr':'مسح',
+    'exp-note':'جميع البيانات تُعالج محليًا — لا ترسل خارج جهازك',
+    'pb-edit':'تعديل',
+    'al-hypo-t':'تحذير: نقص سكر الدم (Hypoglycemia)',
+    'al-hypo-b':'مستوى الجلوكوز أقل من 70 mg/dL — لا تُعطِ الأنسولين. عالج نقص السكر أولًا.',
+    'al-hyper-t':'تحذير: ارتفاع سكر الدم (Hyperglycemia)',
+    'al-hyper-b':'مستوى الجلوكوز أعلى من 250 mg/dL — يُنصح باختبار الكيتونات.',
+    'al-hdose-t':'تحذير: جرعة مرتفعة غير معتادة',
+    'al-hdose-b':'الجرعة الإجمالية تتجاوز 20 وحدة — تأكد من البيانات.',
+    'hist-t':'السجل السريري','hist-s':'جميع حسابات الجرعة المحفوظة',
+    'ht-time':'التاريخ / الوقت','ht-meal':'الوجبة','ht-glu':'السكر',
+    'ht-carb':'الكربوهيدرات','ht-meal-d':'جرعة الوجبة','ht-corr-d':'تصحيح','ht-total':'الإجمالي',
+    'hist-empty-t':'لا توجد سجلات — ابدأ بحساب جرعة',
+    'btn-clr-f':'مسح الفلتر','btn-csv':'تصدير CSV','btn-clr-h':'مسح السجل',
+    'st-sec1':'وضع حساب المعاملات','st-sec2':'المظهر واللغة','st-sec3':'البيانات والخصوصية','st-sec4':'حول التطبيق',
+    'st-mode-l':'وضع التشغيل','mt-auto':'تلقائي','mt-manual':'يدوي',
+    'mia-t':'الوضع التلقائي:','mia-b':'يستخدم بيانات المريض لحساب ICR و ISF تلقائيًا.',
+    'mim-t':'الوضع اليدوي:','mim-b':'يمكنك إدخال ICR و ISF يدويًا.',
+    'sl-dark':'الوضع الداكن','sl-dark-s':'خلفية هادئة وأقل إجهاد للعين',
+    'sl-lang':'اللغة / Language','sl-lang-s':'التبديل بين العربية والإنجليزية',
+    'lang-btn':'EN',
+    'priv-t':'التطبيق 100% محلي','priv-b':'لا يتم إرسال أي بيانات. كل شيء يعمل في متصفحك.',
+    'btn-exp-data':'تصدير البيانات','btn-del-all':'حذف كل البيانات',
+    'about-t':'حاسبة الجرعة الإكلينيكية للأنسولين — تحت إشراف طبي',
+    'about-dis':'هذه الأداة لأغراض مساعدة فقط. استشر الطبيب دائمًا.',
+    'modal-title':'تفاصيل الجرعة','modal-load-lbl':'تحميل هذه الجرعة','modal-close-lbl':'إغلاق',
+    'bk-meal-raw':'جرعة الوجبة (خام)','bk-meal-rnd':'جرعة الوجبة (مقربة)',
+    'bk-corr-raw':'جرعة التصحيح (خام)','bk-corr-neg':'تصحيح سالب → صفر',
+    'bk-corr-pos':'تصحيح موجب','bk-corr-rnd':'جرعة التصحيح (مقربة)','bk-total':'الجرعة الإجمالية',
+    'pvt':'هذا التطبيق يعمل محليًا بالكامل — لا يُرسَل أي بيان خارج جهازك',
+    'no-config':'لا يوجد إعداد مريض — أدخل البيانات أولًا',
+    'no-results':'لا توجد نتائج — أدخل البيانات أولًا',
+    'clear-confirm':'هل أنت متأكد من مسح جميع البيانات؟',
+    'hist-clear-confirm':'هل أنت متأكد من مسح كل السجل؟',
+    'icr-required':'يجب إدخال ICR و ISF في الوضع اليدوي',
+    'ok-lbl':'مستوى طبيعي','warn-lbl':'تحذير','danger-lbl':'تنبيه حرج',
+  },
+  en:{
+    'sb-tag':'Insulin Calculator','nav-calc':'Dose Calculator','nav-hist':'Clinical History',
+    'nav-setup':'Patient Setup','nav-settings':'Settings','collapse-lbl':'Collapse menu',
+    'tb-title-calc':'Dose Calculator','tb-title-hist':'Clinical History',
+    'tb-title-setup':'Patient Setup','tb-title-settings':'Settings',
+    'pt-chip-empty':'No patient','pt-chip-adult':'Adult Patient','pt-chip-child':'Pediatric Patient',
+    's-inp-t':'Patient Data','s-inp-s':'Weight and type to calculate parameters',
+    'sl-w':'Patient Weight','sl-pt':'Patient Type',
+    't-adult':'Adult','t-adult-s':'≥ 18 years','t-child':'Child','t-child-s':'Under 18',
+    'st-tdd-u':'units/day','sbk-t':'Calculation Steps','sbk-s':'Clinical estimation formulas',
+    'stl1':'Patient Data','stl2':'Calculated Parameters','stl3':'Save',
+    'save-lbl':'Save & Open Calculator','ew-t':'Please enter a valid weight greater than zero',
+    'bk-tdd-raw':'TDD (raw)','bk-tdd-rnd':'TDD (rounded)',
+    'bk-icr':'Carb Ratio (ICR)','bk-isf':'Correction Factor (ISF)',
+    'al-peds-t':'Notice: Low Weight','al-peds-b':'Weight below 20 kg — verify pediatric dosing',
+    'al-lowtdd-t':'Notice: Low TDD','al-lowtdd-b':'TDD below 10 units — consult physician',
+    'al-hightdd-t':'Notice: High TDD','al-hightdd-b':'TDD over 100 — verify weight entry',
+    'cf-t':'Dose Parameters','cl-date':'Date','cl-time':'Time','cl-meal':'Meal Type',
+    'mb':'Breakfast','ml':'Lunch','md':'Dinner',
+    'fdiv-glu':'Glucose Measurements','cl-glu':'Pre-Meal Blood Glucose','cl-tar':'Target Glucose',
+    'fdiv-carb':'Carbohydrates','cl-carb':'Carbohydrates Consumed',
+    'gbar-lbl':'Glucose Level','gz-low':'Low <70','gz-norm':'Normal','gz-high':'High >250',
+    'ecglu-t':'Must be > 0','ectar-t':'Must be > 0','eccarb-t':'Must be ≥ 0',
+    'mo-t':'Manual Parameters','ml-icr':'Carb Ratio (ICR)','ml-isf':'Correction Factor (ISF)',
+    'manual-badge':'Manual','manual-alert-t':'Manual Mode Active',
+    'manual-alert-b':'Manually entered parameters override auto-calculated values',
+    'cr-t':'Dose Result','dose-empty-t':'Enter meal data to calculate insulin dose',
+    'dr-lbl':'Total Dose','dr-unit':'Insulin Units',
+    'dr-meal-lbl':'Meal Dose','dr-corr-lbl':'Correction Dose',
+    'cbk-t':'Calculation Steps','bk-toggle-lbl':'Show calculation details','bk-toggle-hide':'Hide details',
+    'cexp-t':'Export Report','btn-pdf':'Download PDF','btn-print':'Print','btn-clr':'Clear',
+    'exp-note':'All data processed locally — nothing sent outside your device',
+    'pb-edit':'Edit',
+    'al-hypo-t':'Warning: Hypoglycemia','al-hypo-b':'BG below 70 mg/dL — Do NOT give insulin. Treat hypoglycemia first.',
+    'al-hyper-t':'Warning: Hyperglycemia','al-hyper-b':'BG above 250 mg/dL — consider ketone testing.',
+    'al-hdose-t':'Warning: Unusually High Dose','al-hdose-b':'Total dose exceeds 20 units — verify all parameters.',
+    'hist-t':'Clinical History','hist-s':'All saved dose calculations',
+    'ht-time':'Date / Time','ht-meal':'Meal','ht-glu':'Glucose',
+    'ht-carb':'Carbs','ht-meal-d':'Meal Dose','ht-corr-d':'Correction','ht-total':'Total',
+    'hist-empty-t':'No records yet — start calculating a dose',
+    'btn-clr-f':'Clear Filter','btn-csv':'Export CSV','btn-clr-h':'Clear History',
+    'st-sec1':'Parameter Calculation Mode','st-sec2':'Appearance & Language','st-sec3':'Data & Privacy','st-sec4':'About',
+    'st-mode-l':'Operation Mode','mt-auto':'Auto','mt-manual':'Manual',
+    'mia-t':'Auto Mode:','mia-b':'Uses patient data to auto-calculate ICR and ISF.',
+    'mim-t':'Manual Mode:','mim-b':'You can manually enter ICR and ISF values.',
+    'sl-dark':'Dark Mode','sl-dark-s':'Softer background, easier on the eyes',
+    'sl-lang':'اللغة / Language','sl-lang-s':'Toggle Arabic / English',
+    'lang-btn':'عربي',
+    'priv-t':'100% Local Application','priv-b':'No data is transmitted. Everything runs in your browser.',
+    'btn-exp-data':'Export Data','btn-del-all':'Delete All Data',
+    'about-t':'Clinical Insulin Dose Calculator — For use under medical supervision',
+    'about-dis':'This tool is for calculation assistance only. Always consult a qualified physician.',
+    'modal-title':'Dose Details','modal-load-lbl':'Load This Dose','modal-close-lbl':'Close',
+    'bk-meal-raw':'Meal Dose (raw)','bk-meal-rnd':'Meal Dose (rounded)',
+    'bk-corr-raw':'Correction Dose (raw)','bk-corr-neg':'Correction negative → 0',
+    'bk-corr-pos':'Correction positive','bk-corr-rnd':'Correction Dose (rounded)','bk-total':'Total Dose',
+    'pvt':'This app runs entirely locally — no data is transmitted outside your device',
+    'no-config':'No patient config — set up patient first',
+    'no-results':'No results yet — enter data first',
+    'clear-confirm':'Are you sure you want to delete all data?',
+    'hist-clear-confirm':'Are you sure you want to clear the history?',
+    'icr-required':'ICR and ISF are required in manual mode',
+    'ok-lbl':'Normal','warn-lbl':'Warning','danger-lbl':'Critical Alert',
+  }
+};
+const I18n=(()=>{
+  let lang='ar';
+  return{
+    get lang(){return lang},
+    t(k){return(T[lang]&&T[lang][k]!==undefined)?T[lang][k]:(T['ar'][k]||k)},
+    setLang(l){lang=l},
+    toggle(){lang=lang==='ar'?'en':'ar';return lang}
+  };
+})();
+
+/* ═══════════════════════════════════════════════════
+   SETTINGS ENGINE
+═══════════════════════════════════════════════════ */
+const Settings=(()=>{
+  const K_CONFIG='ic_config_v4';
+  const K_PREFS='ic_prefs_v4';
+  const K_HIST='ic_history_v4';
+
+  const rH=x=>Math.round(x*2)/2;
+  const rI=x=>Math.round(x);
+
+  function calcAll(w,type){
+    const tddRaw=w*0.55,tdd=rH(tddRaw);
+    const icrNum=type==='child'?350:500;
+    const icr=rI(icrNum/tdd);
+    const isf=rI(1700/tdd);
+    return{weight:w,type,tddRaw,tdd,icrNum,icr,isf};
+  }
+  function saveConfig(c){
+    const d={weight:c.weight,patient_type:c.type,TDD:c.tdd,carb_ratio:c.icr,correction_factor:c.isf,timestamp:new Date().toISOString()};
+    try{localStorage.setItem(K_CONFIG,JSON.stringify(d));}catch(e){}
+    return d;
+  }
+  function loadConfig(){
+    try{const r=localStorage.getItem(K_CONFIG);return r?JSON.parse(r):null;}catch(e){return null;}
+  }
+
+  function savePrefs(p){try{localStorage.setItem(K_PREFS,JSON.stringify(p));}catch(e){}}
+  function loadPrefs(){try{const r=localStorage.getItem(K_PREFS);return r?JSON.parse(r):{};}catch(e){return{};}}
+
+  function loadHistory(){
+    try{const r=localStorage.getItem(K_HIST);return r?JSON.parse(r):[];}catch(e){return[];}
+  }
+  function saveHistory(h){try{localStorage.setItem(K_HIST,JSON.stringify(h));}catch(e){}}
+  function addHistory(entry){
+    const h=loadHistory();
+    entry.id=Date.now()+'_'+Math.random().toString(36).slice(2,7);
+    h.unshift(entry);
+    if(h.length>500)h.splice(500);
+    saveHistory(h);
+    return entry.id;
+  }
+  function clearHistory(){try{localStorage.removeItem(K_HIST);}catch(e){}}
+  function clearAll(){try{localStorage.removeItem(K_CONFIG);localStorage.removeItem(K_HIST);}catch(e){}}
+
+  function getSetupAlerts(w,tdd){
+    const a=[];
+    if(w<20)a.push('peds');
+    if(tdd<10)a.push('lowtdd');
+    if(tdd>100)a.push('hightdd');
+    return a;
+  }
+  return{calcAll,saveConfig,loadConfig,savePrefs,loadPrefs,loadHistory,saveHistory,addHistory,clearHistory,clearAll,getSetupAlerts};
+})();
+
+/* ═══════════════════════════════════════════════════
+   CALC ENGINE
+═══════════════════════════════════════════════════ */
+const Calc=(()=>{
+  const rH=x=>Math.round(x*2)/2;
+  function run({carbs,glucose,target,carbRatio,corrFactor}){
+    const errors={};
+    if(isNaN(carbs)||carbs<0)errors.carbs=true;
+    if(isNaN(glucose)||glucose<=0)errors.glucose=true;
+    if(isNaN(target)||target<=0)errors.target=true;
+    if(isNaN(carbRatio)||carbRatio<=0)errors.carbRatio=true;
+    if(isNaN(corrFactor)||corrFactor<=0)errors.corrFactor=true;
+    if(Object.keys(errors).length)return{ok:false,errors};
+
+    const mealRaw=carbs/carbRatio;
+    const meal=rH(mealRaw);
+    const corrRaw=(glucose-target)/corrFactor;
+    const corrClamped=Math.max(0,corrRaw);
+    const corr=rH(corrClamped);
+    const total=rH(meal+corr);
+    const flags=[];
+    if(glucose<70)flags.push('hypo');
+    if(glucose>250)flags.push('hyper');
+    if(total>20)flags.push('hdose');
+    return{ok:true,errors:{},mealRaw,meal,corrRaw,corrClamped,corr,total,flags};
+  }
+  return{run};
+})();
+
+/* ═══════════════════════════════════════════════════
+   PDF ENGINE — Pure local JS
+═══════════════════════════════════════════════════ */
+const PDF=(()=>{
+  const e=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)').replace(/[\r\n]/g,' ').replace(/[^\x20-\x7E]/g,'?');
+  const f=n=>Number(n).toFixed(3);
+  const rgb=h=>[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];
+
+  function build(config,res){
+    const W=595,H=842,ML=44,MR=44;
+    const CW=W-ML-MR;
+    const ops=[];
+    const t=(s,x,y,fn,sz,hex)=>{
+      const c=rgb(hex||'#0F172A');
+      ops.push(`${f(c[0])} ${f(c[1])} ${f(c[2])} rg BT /${fn} ${sz} Tf ${f(x)} ${f(y)} Td (${e(s)}) Tj ET 0 0 0 rg`);
+    };
+    const line=(y,x1,x2,lw,hex)=>{
+      const c=rgb(hex||'#E2E8F0');
+      ops.push(`${f(c[0])} ${f(c[1])} ${f(c[2])} RG ${f(lw||0.5)} w ${f(x1||ML)} ${f(y)} m ${f(x2||(W-MR))} ${f(y)} l S 0 0 0 RG`);
+    };
+    const rect=(x,y,w,h,hex)=>{
+      const c=rgb(hex);
+      ops.push(`${f(c[0])} ${f(c[1])} ${f(c[2])} rg ${f(x)} ${f(y)} ${f(w)} ${f(h)} re f 0 0 0 rg`);
+    };
+    const section=(label,y,hex)=>{
+      rect(ML,y-4,CW,18,hex||'#EFF6FF');
+      rect(ML,y-4,3,18,'#2563EB');
+      t(label,ML+8,y+6,'FB',9,'#1D4ED8');
+      return y-24;
+    };
+
+    let cy=H-44;
+
+    // Header
+    rect(0,H-60,W,60,'#1D4ED8');
+    t('InsuCalc',ML,H-22,'FB',20,'#FFFFFF');
+    t('CLINICAL INSULIN DOSE REPORT',ML,H-38,'FR',9,'#BFDBFE');
+    const now=new Date().toISOString().replace('T',' ').slice(0,16)+' UTC';
+    t(now,W-MR-155,H-22,'FR',8,'#BFDBFE');
+    t('OFFLINE | PRIVACY-FIRST | ZERO DATA TRANSMITTED',W-MR-215,H-38,'FR',7.5,'#BFDBFE');
+    cy=H-74;
+
+    // Patient config
+    cy=section('PATIENT CONFIGURATION',cy,'#EFF6FF');
+    if(config){
+      const pRows=[
+        ['Weight',config.weight+'  kg'],
+        ['Patient Type',config.patient_type==='adult'?'Adult':'Child/Pediatric'],
+        ['Total Daily Dose (TDD)',config.TDD+'  units/day'],
+        ['Carb Ratio (ICR)','1 : '+config.carb_ratio+'  g/unit'],
+        ['Correction Factor (ISF)',config.correction_factor+'  mg/dL/unit'],
+      ];
+      pRows.forEach(([l,v],i)=>{
+        if(i%2===0)rect(ML,cy-12,CW,16,'#F8FAFC');
+        t(l,ML+6,cy,'FR',8.5,'#334155');
+        t(v,ML+CW*.58,cy,'FB',9,'#0F172A');
+        cy-=16;
+      });
+      t('* Parameters derived using standard clinical estimation formulas',ML+4,cy-2,'FR',7,'#94A3B8');
+      cy-=14;
+    }
+    line(cy);cy-=12;
+
+    if(res&&res.ok){
+      const inp=res.inputs;
+      cy=section('DOSE INPUTS',cy);
+      const iRows=[
+        ['Date',inp.date||'—'],['Time',inp.time||'—'],['Meal',inp.meal||'—'],
+        ['Pre-Meal Blood Glucose',inp.glucose+' mg/dL'],
+        ['Target Glucose',inp.target+' mg/dL'],
+        ['Carbohydrates',inp.carbs+'  g'],
+        ['Carb Ratio Used (ICR)','1:'+inp.carbRatio+'  g/unit'],
+        ['Correction Factor Used (ISF)',inp.corrFactor+'  mg/dL/unit'],
+      ];
+      iRows.forEach(([l,v],i)=>{
+        if(i%2===0)rect(ML,cy-12,CW,16,'#F8FAFC');
+        t(l,ML+6,cy,'FR',8.5,'#334155');
+        t(v,ML+CW*.58,cy,'FB',9,'#0F172A');
+        cy-=16;
+      });
+      cy-=6;line(cy);cy-=12;
+
+      cy=section('CALCULATION BREAKDOWN',cy,'#ECFDF5');
+      const bRows=[
+        ['Meal Dose (raw)',inp.carbs+'/'+inp.carbRatio,res.mealRaw.toFixed(4)+' u'],
+        ['Meal Dose (rounded)','round(×2)/2',res.meal+' u'],
+        ['Correction (raw)','('+inp.glucose+'−'+inp.target+')/'+inp.corrFactor,res.corrRaw.toFixed(4)+' u'],
+        [res.corrRaw<0?'Correction clamped (neg)':'Correction applied','max(0,raw)',res.corrClamped.toFixed(4)+' u'],
+        ['Correction (rounded)','round(×2)/2',res.corr+' u'],
+        ['TOTAL DOSE',res.meal+'+'+res.corr,res.total+' UNITS'],
+      ];
+      bRows.forEach(([l,fm,rv],i)=>{
+        const isTot=i===bRows.length-1;
+        if(isTot)rect(ML,cy-12,CW,16,'#D1FAE5');
+        else if(i%2===0)rect(ML,cy-12,CW,16,'#F8FAFC');
+        t(l,ML+5,cy,isTot?'FB':'FR',8.5,isTot?'#065F46':'#334155');
+        t(fm,ML+CW*.44,cy,'FR',7.5,'#94A3B8');
+        t(rv,ML+CW*.72,cy,isTot?'FB':'FR',isTot?9.5:8.5,isTot?'#065F46':'#0F172A');
+        cy-=16;
+      });
+      cy-=10;
+
+      // Result box
+      rect(ML,cy-52,CW,56,'#1D4ED8');
+      t('TOTAL INSULIN DOSE',ML+12,cy-10,'FR',9,'#BFDBFE');
+      t(''+res.total,ML+12,cy-44,'FB',32,'#FFFFFF');
+      t('UNITS',ML+18+(String(res.total).length*18),cy-38,'FR',11,'#BFDBFE');
+      t('Meal: '+res.meal+'u  +  Correction: '+res.corr+'u  =  Total: '+res.total+'u',ML+12,cy-52,'FR',7.5,'#BFDBFE');
+      cy-=65;
+
+      if(res.flags&&res.flags.length){
+        const amap={hypo:'HYPOGLYCEMIA: BG<70 — Do NOT administer insulin',hyper:'HYPERGLYCEMIA: BG>250 — Consider ketone test',hdose:'HIGH DOSE: >20 units — Verify all parameters'};
+        cy-=5;
+        rect(ML,cy-6,CW,18,'#FEF2F2');rect(ML,cy-6,3,18,'#DC2626');
+        t('CLINICAL SAFETY ALERTS',ML+8,cy+4,'FB',9,'#B91C1C');
+        cy-=18;
+        res.flags.forEach(fl=>{
+          if(!amap[fl])return;
+          rect(ML,cy-11,CW,15,'#FFF8F8');
+          t('⚠  '+amap[fl],ML+5,cy,'FB',8,'#B91C1C');
+          cy-=15;
+        });
+        cy-=4;
+      }
+    }
+
+    // Footer
+    const fy=ML+28;
+    line(fy+10);
+    t('DISCLAIMER: This report is for clinical calculation assistance only. Always consult a qualified physician before administering insulin.',ML,fy,'FR',7,'#94A3B8');
+    t('InsuCalc Pro v3.0  |  100% Offline  |  Zero data transmitted',ML,fy-11,'FR',7,'#94A3B8');
+
+    const stream=ops.join('\n');
+    let pdf='%PDF-1.4\n';
+    const off={};
+    const addObj=(id,d,s)=>{
+      off[id]=pdf.length;
+      if(s!=null)pdf+=`${id} 0 obj\n<< ${d} /Length ${s.length} >>\nstream\n${s}\nendstream\nendobj\n`;
+      else pdf+=`${id} 0 obj\n<< ${d} >>\nendobj\n`;
+    };
+    addObj(1,'/Type /Catalog /Pages 2 0 R');
+    addObj(2,'/Type /Pages /Kids [3 0 R] /Count 1');
+    addObj(3,`/Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Contents 4 0 R /Resources << /Font << /FR 5 0 R /FB 6 0 R >> >>`);
+    addObj(4,'',stream);
+    addObj(5,'/Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding');
+    addObj(6,'/Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding');
+    const xp=pdf.length;
+    pdf+=`xref\n0 7\n0000000000 65535 f \n`;
+    for(let id=1;id<=6;id++)pdf+=String(off[id]).padStart(10,'0')+' 00000 n \n';
+    pdf+=`trailer\n<< /Size 7 /Root 1 0 R >>\nstartxref\n${xp}\n%%EOF`;
+    return pdf;
+  }
+
+  function download(config,res){
+    const p=build(config,res);
+    const blob=new Blob([p],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const dt=new Date().toISOString().replace(/[-:T]/g,'').slice(0,12);
+    const a=Object.assign(document.createElement('a'),{href:url,download:`insulin-report-${dt}.pdf`});
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),6000);
+  }
+  return{download,build};
+})();
+
+/* ═══════════════════════════════════════════════════
+   APP CONTROLLER
+═══════════════════════════════════════════════════ */
+const App=(()=>{
+  let theme='light',mode='auto',meal='breakfast',patientType='adult';
+  let config=null,calcResult=null,bkOpen=false,_setup=null,_histItem=null;
+  let _histAll=[];
+
+  const $=id=>document.getElementById(id);
+  const txt=(id,v)=>{const e=$(id);if(e)e.textContent=v};
+  const show=(id,v)=>{const e=$(id);if(e)e.style.display=(v===false||v==='none')?'none':(v||'block')};
+  const t=k=>I18n.t(k);
+
+  // ── TEXTS ──────────────────────────────────────
+  function updateAllTexts(){
+    const ids=['sb-tag','nav-calc','nav-hist','nav-setup','nav-settings','collapse-lbl',
+      's-inp-t','s-inp-s','sl-w','sl-pt','t-adult','t-adult-s','t-child','t-child-s',
+      'st-tdd-u','sbk-t','sbk-s','stl1','stl2','stl3','save-lbl','ew-t',
+      'cf-t','cl-date','cl-time','cl-meal','mb','ml','md',
+      'fdiv-glu','cl-glu','cl-tar','fdiv-carb','cl-carb',
+      'gbar-lbl','gz-low','gz-norm','gz-high',
+      'ecglu-t','ectar-t','eccarb-t',
+      'mo-t','ml-icr','ml-isf','manual-badge',
+      'manual-alert-t','manual-alert-b',
+      'cr-t','dose-empty-t','dr-lbl','dr-unit','dr-meal-lbl','dr-corr-lbl',
+      'cbk-t','cexp-t','btn-pdf','btn-print','btn-clr','exp-note','pb-edit',
+      'hist-t','hist-s','ht-time','ht-meal','ht-glu','ht-carb','ht-meal-d','ht-corr-d','ht-total',
+      'hist-empty-t','btn-clr-f','btn-csv','btn-clr-h',
+      'st-sec1','st-sec2','st-sec3','st-sec4','st-mode-l','mt-auto','mt-manual',
+      'mia-t','mia-b','mim-t','mim-b',
+      'sl-dark','sl-dark-s','sl-lang','sl-lang-s','lang-btn',
+      'priv-t','priv-b','btn-exp-data','btn-del-all','about-t','about-dis',
+      'modal-title','modal-load-lbl','modal-close-lbl','pvt',
+    ];
+    ids.forEach(id=>txt(id,t(id)));
+    txt('bk-toggle-lbl',bkOpen?t('bk-toggle-hide'):t('bk-toggle-lbl'));
+    if(config){
+      updatePatientUI(config);
+      updateParamInfoCard();
+    }
+    if(calcResult&&calcResult.ok)renderBreakdown(calcResult);
+    renderSetupBreakdown();
+    renderSetupAlerts();
+  }
+
+  // ── THEME ──────────────────────────────────────
+  function applyTheme(){
+    document.documentElement.setAttribute('data-theme',theme);
+    const isDark=theme==='dark';
+    const sunSVG='M12 3v1m0 16v1m-9-9H3m16 0h1m-2.636-6.364l-.707.707M5.343 18.657l-.707.707M18.657 18.657l-.707-.707M5.343 5.343l-.707-.707M16 12a4 4 0 11-8 0 4 4 0 018 0z';
+    const moonSVG='M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z';
+    $('theme-icon').querySelector('path').setAttribute('d',isDark?sunSVG:moonSVG);
+    const sw=$('dark-switch');
+    if(sw)sw.checked=isDark;
+    savePref();
+  }
+
+  // ── LANG ──────────────────────────────────────
+  function applyLang(){
+    const lang=I18n.lang;
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+    document.body.classList.toggle('ltr',lang==='en');
+    updateAllTexts();
+    savePref();
+  }
+
+  // ── NAV ──────────────────────────────────────
+  const pageMap={
+    calc:{page:'page-calc',title:'tb-title-calc'},
+    history:{page:'page-history',title:'tb-title-hist'},
+    setup:{page:'page-setup',title:'tb-title-setup'},
+    settings:{page:'page-settings',title:'tb-title-settings'},
+  };
+  function nav(key){
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    const ni=document.querySelector(`[data-page="${key}"]`);
+    if(ni)ni.classList.add('active');
+    document.querySelectorAll('.page-wrap').forEach(p=>p.classList.remove('active'));
+    const pm=pageMap[key];
+    if(pm){
+      const pg=$(pm.page);if(pg)pg.classList.add('active');
+      txt('tb-title-text',t(pm.title));
+      // Update page title icon
+    }
+    if(key==='history')renderHistory();
+    closeSidebar();
+  }
+
+  // ── SIDEBAR ──────────────────────────────────────
+  function toggleSidebar(){
+    const sb=$('sidebar');
+    sb.classList.toggle('collapsed');
+    savePref();
+  }
+  function openSidebar(){
+    $('sidebar').classList.add('mobile-open');
+    $('mob-overlay').classList.add('show');
+  }
+  function closeSidebar(){
+    $('sidebar').classList.remove('mobile-open');
+    $('mob-overlay').classList.remove('show');
+  }
+
+  // ── SETUP PAGE ──────────────────────────────────────
+  function onSetupInput(){
+    const w=parseFloat($('sw').value);
+    const type=patientType;
+    const saveBtn=$('save-btn');
+    if(isNaN(w)||w<=0){
+      $('sw').classList.add('error');
+      $('ew').classList.add('show');
+      txt('st-tdd','—');txt('st-icr','—');txt('st-isf','—');
+      show('setup-bk',false);
+      $('setup-alerts').innerHTML='';
+      saveBtn.disabled=true;
+      setSteps(1);_setup=null;return;
+    }
+    $('sw').classList.remove('error');$('ew').classList.remove('show');
+    const c=Settings.calcAll(w,type);
+    _setup=c;
+    animStat('st-tdd',c.tdd.toFixed(1));
+    animStat('st-icr','1:'+c.icr);
+    animStat('st-isf',c.isf+'');
+    show('setup-bk','block');
+    renderSetupBreakdown(c);
+    renderSetupAlerts(c);
+    saveBtn.disabled=false;
+    setSteps(2);
+  }
+
+  function animStat(id,v){
+    const e=$(id);if(!e)return;
+    e.textContent=v;
+    e.style.transform='scale(1.08)';
+    setTimeout(()=>{e.style.transform='scale(1)';e.style.transition='transform .3s ease';},50);
+    setTimeout(()=>{e.style.transform='';e.style.transition='';},350);
+  }
+
+  function setSteps(active){
+    [1,2,3].forEach(i=>{
+      const el=$('stp'+i);const sn=$('sn'+i);if(!el||!sn)return;
+      el.classList.remove('active','done');
+      if(i<active){el.classList.add('done');sn.textContent='✓';}
+      else if(i===active){el.classList.add('active');sn.textContent=i;}
+      else sn.textContent=i;
+    });
+  }
+
+  function renderSetupBreakdown(c){
+    c=c||_setup;if(!c)return;
+    const rows=[
+      {label:t('bk-tdd-raw'),formula:`${c.weight} × 0.55`,result:`${c.tddRaw.toFixed(4)}`},
+      {label:t('bk-tdd-rnd'),formula:`round(${c.tddRaw.toFixed(3)}×2)/2`,result:`${c.tdd} units/day`},
+      {label:t('bk-icr'),formula:`${c.icrNum} ÷ ${c.tdd} [${c.type==='child'?'Child':'Adult'}]`,result:`1:${c.icr} g/unit`},
+      {label:t('bk-isf'),formula:`1700 ÷ ${c.tdd}`,result:`${c.isf} mg/dL/u`},
+    ];
+    $('setup-bk-list').innerHTML=rows.map((r,i)=>`
+      <div class="bk-row ${i===rows.length-1?'total':'accent'}">
+        <div class="bk-lhs">
+          <div class="bk-name">${r.label}</div>
+          <div class="bk-formula">${r.formula}</div>
+        </div>
+        <div class="bk-res">= ${r.result}</div>
+      </div>
+    `).join('');
+  }
+
+  function renderSetupAlerts(c){
+    c=c||_setup;
+    const cont=$('setup-alerts');if(!cont)return;
+    if(!c){cont.innerHTML='';return;}
+    const flags=Settings.getSetupAlerts(c.weight,c.tdd);
+    cont.innerHTML=flags.map(f=>`
+      <div class="alert alert-amber">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <div><div class="alert-title">${t('al-'+f+'-t')}</div><div class="alert-body">${t('al-'+f+'-b')}</div></div>
+      </div>
+    `).join('');
+  }
+
+  function saveConfig(){
+    if(!_setup)return;
+    config=Settings.saveConfig(_setup);
+    setSteps(3);
+    updatePatientUI(config);
+    show('patient-bar','flex');
+    nav('calc');
+  }
+
+  function updatePatientUI(cfg){
+    if(!cfg)return;
+    const typeName=cfg.patient_type==='adult'?t('pt-chip-adult'):t('pt-chip-child');
+    txt('pb-name',`${typeName} — ${cfg.weight} kg`);
+    txt('pb-type',`TDD: ${cfg.TDD} u/day`);
+    txt('pbs-tdd',cfg.TDD);
+    txt('pbs-icr','1:'+cfg.carb_ratio);
+    txt('pbs-isf',cfg.correction_factor);
+
+    // Chip
+    const chip=$('pt-chip');
+    if(chip){
+      chip.classList.remove('empty');
+      txt('pt-chip-text',`ICR 1:${cfg.carb_ratio} | ISF ${cfg.correction_factor}`);
+    }
+    // Manual mode fields
+    if(mode==='manual'&&$('micr')&&!$('micr').value){
+      $('micr').value=cfg.carb_ratio;
+      $('misf').value=cfg.correction_factor;
+    }
+    updateParamInfoCard();
+  }
+
+  function updateParamInfoCard(){
+    if(!config){show('manual-mode-alert',false);return;}
+    if(mode==='manual'){
+      show('manual-mode-alert','flex');
+      show('manual-override-card','block');
+    }else{
+      show('manual-mode-alert',false);
+      show('manual-override-card',false);
+    }
+  }
+
+  // ── CALC ──────────────────────────────────────
+  function getFactors(){
+    if(mode==='manual'){
+      const icr=parseFloat($('micr').value);
+      const isf=parseFloat($('misf').value);
+      return{icr,isf,valid:!isNaN(icr)&&icr>0&&!isNaN(isf)&&isf>0};
+    }
+    if(!config)return{valid:false};
+    return{icr:config.carb_ratio,isf:config.correction_factor,valid:true};
+  }
+
+  function recalc(){
+    if(!config&&mode==='auto'){
+      show('dose-result',false);show('dose-empty','block');
+      show('cbk-list',false);show('cbk-toggle',false);
+      $('cbk-empty').textContent=t('no-config');
+      $('alerts-container').innerHTML='';
+      calcResult=null;return;
+    }
+    const carbs=parseFloat($('ccarb').value);
+    const glucose=parseFloat($('cglu').value);
+    const target=parseFloat($('ctar').value);
+    const {icr,isf,valid}=getFactors();
+
+    updateGluBar(glucose);
+
+    const hasAny=!isNaN(carbs)||!isNaN(glucose)||!isNaN(target);
+    if(!hasAny){
+      clearErrors();show('dose-result',false);show('dose-empty','block');
+      show('cbk-list',false);show('cbk-toggle',false);
+      $('cbk-empty').textContent=t('dose-empty-t');
+      $('alerts-container').innerHTML='';
+      $('dose-badge').innerHTML='';calcResult=null;return;
+    }
+
+    const r=Calc.run({carbs,glucose,target,carbRatio:icr,corrFactor:isf});
+    if(!r.ok){
+      renderErrors(r.errors);
+      show('dose-result',false);show('dose-empty','block');
+      show('cbk-list',false);show('cbk-toggle',false);
+      $('alerts-container').innerHTML='';
+      calcResult=null;return;
+    }
+    clearErrors();
+    r.inputs={carbs,glucose,target,carbRatio:icr,corrFactor:isf,
+      date:$('cdate').value,time:$('ctime').value,meal,
+      mode,patient_type:config?.patient_type};
+    calcResult=r;
+
+    show('dose-empty',false);show('dose-result','block');
+    $('dr-val').textContent=r.total%1===0?r.total.toFixed(1):r.total;
+    $('dr-meal').textContent=r.meal;
+    $('dr-corr').textContent=r.corr;
+
+    renderBreakdown(r);
+    renderDoseAlerts(r.flags);
+
+    if(r.flags.length){
+      const isDanger=r.flags.includes('hypo')||r.flags.includes('hyper');
+      $('dose-badge').innerHTML=`<span class="badge ${isDanger?'badge-red':'badge-amber'}">${isDanger?'⚠ '+t('danger-lbl'):'⚠ '+t('warn-lbl')}</span>`;
+    }else{
+      $('dose-badge').innerHTML=`<span class="badge badge-green">✓ ${t('ok-lbl')}</span>`;
+    }
+
+    // Auto-save to history
+    Settings.addHistory({...r.inputs,mealDose:r.meal,corrDose:r.corr,totalDose:r.total,flags:r.flags,ts:new Date().toISOString()});
+    updateHistBadge();
+  }
+
+  function renderBreakdown(r){
+    const{carbs,carbRatio,glucose,target,corrFactor}=r.inputs;
+    const rows=[
+      {name:t('bk-meal-raw'),formula:`${carbs} ÷ ${carbRatio}`,res:`${r.mealRaw.toFixed(4)} u`,cls:'accent'},
+      {name:t('bk-meal-rnd'),formula:`round(${r.mealRaw.toFixed(4)}×2)/2`,res:`${r.meal} u`,cls:'accent'},
+      {name:t('bk-corr-raw'),formula:`(${glucose}−${target})÷${corrFactor}`,res:`${r.corrRaw.toFixed(4)} u`,cls:'accent'},
+      {name:r.corrRaw<0?t('bk-corr-neg'):t('bk-corr-pos'),formula:`max(0, ${r.corrRaw.toFixed(4)})`,res:`${r.corrClamped.toFixed(4)} u`,cls:'accent'},
+      {name:t('bk-corr-rnd'),formula:`round(${r.corrClamped.toFixed(4)}×2)/2`,res:`${r.corr} u`,cls:'accent'},
+      {name:t('bk-total'),formula:`${r.meal} + ${r.corr}`,res:`${r.total} units`,cls:'total'},
+    ];
+    $('cbk-list').innerHTML=rows.map(row=>`
+      <div class="bk-row ${row.cls}">
+        <div class="bk-lhs">
+          <div class="bk-name">${row.name}</div>
+          <div class="bk-formula">${row.formula}</div>
+        </div>
+        <div class="bk-res">= ${row.res}</div>
+      </div>
+    `).join('');
+
+    if(bkOpen){
+      show('cbk-list','flex');
+      $('cbk-list').style.flexDirection='column';
+    }else{
+      show('cbk-list',false);
+    }
+    show('cbk-toggle','block');
+    txt('bk-toggle-lbl',bkOpen?t('bk-toggle-hide'):t('bk-toggle-lbl'));
+    $('bk-chevron').classList.toggle('open',bkOpen);
+  }
+
+  function renderDoseAlerts(flags){
+    const defs={
+      hypo:{cls:'alert-red',title:t('al-hypo-t'),body:t('al-hypo-b'),icon:'<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'},
+      hyper:{cls:'alert-amber',title:t('al-hyper-t'),body:t('al-hyper-b'),icon:'<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>'},
+      hdose:{cls:'alert-amber',title:t('al-hdose-t'),body:t('al-hdose-b'),icon:'<path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>'},
+    };
+    $('alerts-container').innerHTML=flags.map(f=>{
+      const d=defs[f];if(!d)return'';
+      return`<div class="alert ${d.cls}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d.icon}</svg>
+        <div><div class="alert-title">${d.title}</div><div class="alert-body">${d.body}</div></div>
+      </div>`;
+    }).join('');
+  }
+
+  function updateGluBar(g){
+    if(!g||isNaN(g)||g<=0){show('gbar',false);return;}
+    show('gbar','block');
+    const pct=Math.min(100,Math.max(0,(g/400)*100));
+    const fill=$('gbar-fill');const val=$('gbar-val');
+    fill.style.width=pct+'%';
+    const col=g<70?'var(--red)':g>250?'var(--amber)':'var(--green)';
+    fill.style.background=g<70?'var(--red)':g>250?'var(--amber)':'var(--green)';
+    val.style.color=col;
+    val.textContent=g+' mg/dL';
+  }
+
+  function renderErrors(errs){
+    const map=[['carbs','ccarb','eccarb'],['glucose','cglu','ecglu'],['target','ctar','ectar']];
+    map.forEach(([field,inp,err])=>{
+      const ie=$(inp),ee=$(err);if(!ie||!ee)return;
+      ie.classList.toggle('error',!!(errs&&errs[field]));
+      ee.classList.toggle('show',!!(errs&&errs[field]));
+    });
+  }
+  function clearErrors(){renderErrors({});}
+
+  // ── HISTORY ──────────────────────────────────────
+  function updateHistBadge(){
+    const h=Settings.loadHistory();
+    const badge=$('hist-badge');
+    if(h.length>0){show('hist-badge','inline');txt('hist-badge',h.length>99?'99+':h.length);}
+    else show('hist-badge',false);
+    txt('hist-count-badge',h.length+' '+(I18n.lang==='ar'?'سجل':'records'));
+  }
+
+  function renderHistory(){
+    _histAll=Settings.loadHistory();
+    updateHistBadge();
+    const search=($('hist-search')||{value:''}).value.toLowerCase();
+    const date=($('hist-date')||{value:''}).value;
+
+    let filtered=_histAll.filter(h=>{
+      if(date&&!h.ts.startsWith(date))return false;
+      if(search&&!JSON.stringify(h).toLowerCase().includes(search))return false;
+      return true;
+    });
+
+    const body=$('hist-body');
+    const empty=$('hist-empty');
+    const tableWrap=$('hist-table-wrap');
+
+    if(filtered.length===0){
+      show('hist-empty','block');show('hist-table-wrap',false);return;
+    }
+    show('hist-empty',false);show('hist-table-wrap','block');
+
+    const mealIcon={breakfast:'🍳',lunch:'🥗',dinner:'🍽',Breakfast:'🍳',Lunch:'🥗',Dinner:'🍽'};
+    const mealLabel={breakfast:t('mb'),lunch:t('ml'),dinner:t('md'),Breakfast:t('mb'),Lunch:t('ml'),Dinner:t('md')};
+    const glucoseColor=g=>g<70?'var(--red)':g>250?'var(--amber)':'var(--green)';
+
+    body.innerHTML=filtered.map(h=>`
+      <tr onclick="App.openHistDetail('${h.id}')">
+        <td>
+          <div style="font-weight:600;font-size:.8rem;color:var(--txt)">${h.ts?new Date(h.ts).toLocaleDateString('ar-SA',{month:'short',day:'numeric'}):h.date||'—'}</div>
+          <div class="ht-time">${h.ts?new Date(h.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):h.time||'—'}</div>
+        </td>
+        <td><span class="ht-meal-tag">${mealIcon[h.meal]||'🍽'} ${mealLabel[h.meal]||h.meal||'—'}</span></td>
+        <td><span class="ht-glucose" style="color:${glucoseColor(h.glucose)}">${h.glucose||'—'} <span style="font-size:.7rem;color:var(--txt3);font-weight:400">mg/dL</span></span></td>
+        <td><span style="font-family:var(--font-num)">${h.carbs||'—'} <span style="font-size:.7rem;color:var(--txt3)">g</span></span></td>
+        <td><span style="font-family:var(--font-num);color:var(--blue)">${h.mealDose||'—'} u</span></td>
+        <td><span style="font-family:var(--font-num);color:var(--slate)">${h.corrDose||'0'} u</span></td>
+        <td><span class="ht-dose">${h.totalDose||'—'} u</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();App.openHistDetail('${h.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </button></td>
+      </tr>
+    `).join('');
+  }
+
+  function openHistDetail(id){
+    const h=_histAll.find(x=>x.id===id);
+    if(!h)return;
+    _histItem=h;
+    const mealLabel={breakfast:t('mb'),lunch:t('ml'),dinner:t('md'),Breakfast:t('mb'),Lunch:t('ml'),Dinner:t('md')};
+    const rows=[
+      [t('cl-date'),h.date||(h.ts?new Date(h.ts).toLocaleDateString():'')||'—'],
+      [t('cl-time'),h.time||(h.ts?new Date(h.ts).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'')||'—'],
+      [t('cl-meal'),mealLabel[h.meal]||h.meal||'—'],
+      [t('cl-glu'),h.glucose+' mg/dL'],
+      [t('cl-tar'),h.target+' mg/dL'],
+      [t('cl-carb'),h.carbs+' g'],
+      ['ICR','1:'+h.carbRatio+' g/u'],
+      ['ISF',h.corrFactor+' mg/dL/u'],
+      [t('dr-meal-lbl'),h.mealDose+' u'],
+      [t('dr-corr-lbl'),h.corrDose+' u'],
+      [t('dr-lbl'),h.totalDose+' u'],
+    ];
+    $('modal-body').innerHTML=`
+      <div style="background:var(--blue);border-radius:var(--rm);padding:.85rem 1rem;text-align:center;margin-bottom:1rem">
+        <div style="font-size:.72rem;color:rgba(255,255,255,.75);margin-bottom:.2rem">${t('dr-lbl')}</div>
+        <div style="font-size:2.5rem;font-weight:800;color:#fff;font-family:var(--font-num)">${h.totalDose}</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,.7)">${t('dr-unit')}</div>
+      </div>
+      <table style="width:100%;font-size:.8rem;border-collapse:collapse">
+        ${rows.map(([l,v],i)=>`
+          <tr style="background:${i%2===0?'var(--surf2)':'transparent'}">
+            <td style="padding:.36rem .7rem;color:var(--txt3);font-weight:500">${l}</td>
+            <td style="padding:.36rem .7rem;font-weight:600;font-family:var(--font-num)">${v}</td>
+          </tr>
+        `).join('')}
+      </table>
+    `;
+    $('hist-modal').classList.remove('hidden');
+  }
+
+  function closeModal(){$('hist-modal').classList.add('hidden');_histItem=null;}
+
+  function loadHistoryItem(){
+    if(!_histItem)return;
+    const h=_histItem;
+    if($('cdate'))$('cdate').value=h.date||'';
+    if($('ctime'))$('ctime').value=h.time||'';
+    if($('cglu'))$('cglu').value=h.glucose||'';
+    if($('ctar'))$('ctar').value=h.target||'';
+    if($('ccarb'))$('ccarb').value=h.carbs||'';
+    const mo=document.querySelector(`.meal-opt[data-meal="${h.meal||'breakfast'}"]`);
+    if(mo){document.querySelectorAll('.meal-opt').forEach(m=>m.classList.remove('active'));mo.classList.add('active');meal=h.meal||'breakfast';}
+    closeModal();
+    nav('calc');
+    setTimeout(recalc,100);
+  }
+
+  function filterHistory(){renderHistory();}
+  function clearHistoryFilter(){
+    const s=$('hist-search');if(s)s.value='';
+    const d=$('hist-date');if(d)d.value='';
+    renderHistory();
+  }
+  function clearHistory(){
+    if(!confirm(t('hist-clear-confirm')))return;
+    Settings.clearHistory();renderHistory();updateHistBadge();
+  }
+  function exportHistoryCSV(){
+    const h=Settings.loadHistory();if(!h.length)return;
+    const header='Timestamp,Date,Time,Meal,Glucose,Target,Carbs,ICR,ISF,MealDose,CorrDose,TotalDose\n';
+    const rows=h.map(x=>[x.ts,x.date,x.time,x.meal,x.glucose,x.target,x.carbs,x.carbRatio,x.corrFactor,x.mealDose,x.corrDose,x.totalDose].join(',')).join('\n');
+    const blob=new Blob([header+rows],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=Object.assign(document.createElement('a'),{href:url,download:`insucalc-history-${Date.now()}.csv`});
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+  }
+
+  // ── SETTINGS ──────────────────────────────────────
+  function setMode(m,el){
+    mode=m;
+    document.querySelectorAll('.toggle-opt').forEach(o=>o.classList.remove('active'));
+    if(el)el.classList.add('active');
+    show('mode-auto-info',m==='auto'?'block':'none');
+    show('mode-manual-info',m==='manual'?'block':'none');
+    updateParamInfoCard();
+    savePref();
+  }
+
+  function savePref(){
+    Settings.savePrefs({theme,lang:I18n.lang,mode,collapsed:$('sidebar').classList.contains('collapsed')});
+  }
+
+  // ── EXPORT / PRINT ──────────────────────────────────────
+  function downloadPDF(){
+    PDF.download(config,calcResult&&calcResult.ok?calcResult:null);
+  }
+
+  function printView(){
+    const pw=$('prw');
+    if(!config&&!calcResult){alert(t('no-results'));return;}
+    const r=calcResult&&calcResult.ok?calcResult:null;
+    const mealLabel={breakfast:t('mb'),lunch:t('ml'),dinner:t('md')};
+    const rows=r?[
+      [t('cl-date'),r.inputs.date||'—'],[t('cl-time'),r.inputs.time||'—'],
+      [t('cl-meal'),mealLabel[r.inputs.meal]||r.inputs.meal||'—'],
+      [t('cl-glu'),r.inputs.glucose+' mg/dL'],[t('cl-tar'),r.inputs.target+' mg/dL'],
+      [t('cl-carb'),r.inputs.carbs+' g'],
+    ]:[];
+    const cfgRows=config?[
+      [t('sl-w'),config.weight+' kg'],
+      [t('sl-pt'),config.patient_type==='adult'?t('t-adult'):t('t-child')],
+      ['TDD',config.TDD+' u/day'],['ICR','1:'+config.carb_ratio+' g/u'],['ISF',config.correction_factor+' mg/dL/u'],
+    ]:[];
+    const dir=I18n.lang==='ar'?'rtl':'ltr';
+    pw.innerHTML=`<div dir="${dir}" style="font-family:-apple-system,sans-serif;max-width:700px;margin:0 auto;padding:2rem;color:#0F172A">
+      <div style="border-bottom:3px solid #2563EB;padding-bottom:1rem;margin-bottom:1.5rem">
+        <h1 style="color:#2563EB;margin:0;font-size:1.4rem;font-weight:800">InsuCalc</h1>
+        <div style="font-size:.85rem;color:#64748B;margin-top:.25rem">Clinical Insulin Dose Report — ${new Date().toLocaleString()}</div>
+      </div>
+      ${cfgRows.length?`<table style="width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:.82rem">
+        <tr style="background:#EFF6FF"><th colspan="2" style="padding:.5rem .75rem;text-align:${dir==='rtl'?'right':'left'};color:#1D4ED8;font-size:.8rem">Patient Configuration</th></tr>
+        ${cfgRows.map(([l,v],i)=>`<tr style="background:${i%2===0?'#F8FAFC':'#fff'}"><td style="padding:.38rem .75rem;color:#64748B">${l}</td><td style="padding:.38rem .75rem;font-weight:600">${v}</td></tr>`).join('')}
+      </table>`:''}
+      ${rows.length?`<table style="width:100%;border-collapse:collapse;margin-bottom:1rem;font-size:.82rem">
+        <tr style="background:#EFF6FF"><th colspan="2" style="padding:.5rem .75rem;text-align:${dir==='rtl'?'right':'left'};color:#1D4ED8;font-size:.8rem">Dose Inputs</th></tr>
+        ${rows.map(([l,v],i)=>`<tr style="background:${i%2===0?'#F8FAFC':'#fff'}"><td style="padding:.38rem .75rem;color:#64748B">${l}</td><td style="padding:.38rem .75rem;font-weight:600">${v}</td></tr>`).join('')}
+      </table>`:''}
+      ${r?`<div style="background:#2563EB;color:#fff;padding:1.2rem;border-radius:10px;text-align:center;margin-bottom:1rem">
+        <div style="font-size:.75rem;opacity:.8">${t('dr-lbl')}</div>
+        <div style="font-size:3rem;font-weight:800;font-family:monospace">${r.total}</div>
+        <div style="font-size:.8rem;opacity:.75">${t('dr-unit')}</div>
+        <div style="font-size:.72rem;opacity:.65;margin-top:.5rem">${t('dr-meal-lbl')}: ${r.meal}  |  ${t('dr-corr-lbl')}: ${r.corr}</div>
+      </div>`:''}
+      <p style="font-size:.7rem;color:#94A3B8;text-align:center;border-top:1px solid #E2E8F0;padding-top:.75rem">${t('about-dis')}</p>
+    </div>`;
+    pw.style.display='block';
+    window.print();
+    setTimeout(()=>{pw.style.display='none';pw.innerHTML='';},2000);
+  }
+
+  function clearCalc(){
+    ['cglu','ctar','ccarb'].forEach(id=>{const e=$(id);if(e)e.value='';});
+    clearErrors();
+    show('dose-result',false);show('dose-empty','block');
+    show('cbk-list',false);show('cbk-toggle',false);
+    show('gbar',false);
+    $('alerts-container').innerHTML='';
+    $('dose-badge').innerHTML='';
+    calcResult=null;
+  }
+
+  function exportAllData(){
+    const data={config:Settings.loadConfig(),history:Settings.loadHistory(),exported:new Date().toISOString()};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=Object.assign(document.createElement('a'),{href:url,download:`insucalc-data-${Date.now()}.json`});
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+  }
+
+  function clearAllData(){
+    if(!confirm(t('clear-confirm')))return;
+    Settings.clearAll();
+    config=null;calcResult=null;_setup=null;
+    const chip=$('pt-chip');
+    if(chip){chip.classList.add('empty');txt('pt-chip-text',t('pt-chip-empty'));}
+    show('patient-bar',false);
+    clearCalc();
+    nav('setup');
+  }
+
+  // ── INIT ──────────────────────────────────────
+  return{
+    init(){
+      // Load prefs
+      const prefs=Settings.loadPrefs();
+      if(prefs.theme)theme=prefs.theme;
+      if(prefs.lang)I18n.setLang(prefs.lang);
+      if(prefs.mode)mode=prefs.mode;
+      if(prefs.collapsed)$('sidebar').classList.add('collapsed');
+
+      applyTheme();
+      applyLang();
+
+      // Set mode toggle state
+      document.querySelectorAll('.toggle-opt').forEach(o=>o.classList.remove('active'));
+      const modeEl=document.querySelector(`[data-mode="${mode}"]`);
+      if(modeEl)modeEl.classList.add('active');
+      show('mode-auto-info',mode==='auto'?'block':'none');
+      show('mode-manual-info',mode==='manual'?'block':'none');
+
+      // Default date/time
+      const now=new Date();
+      $('cdate').value=now.toISOString().split('T')[0];
+      $('ctime').value=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      // Load existing config
+      config=Settings.loadConfig();
+      if(config){
+        updatePatientUI(config);
+        show('patient-bar','flex');
+        // Pre-fill setup form
+        $('sw').value=config.weight;
+        const typeOpts=document.querySelectorAll('.type-opt');
+        typeOpts.forEach(o=>{o.classList.remove('active');if(o.dataset.type===config.patient_type)o.classList.add('active');});
+        patientType=config.patient_type||'adult';
+        _setup=Settings.calcAll(config.weight,patientType);
+        renderSetupBreakdown(_setup);
+        renderSetupAlerts(_setup);
+        show('setup-bk','block');
+        setSteps(3);
+        $('save-btn').disabled=false;
+
+        // Manual fields
+        if(mode==='manual'){
+          $('micr').value=config.carb_ratio;
+          $('misf').value=config.correction_factor;
+        }
+        nav('calc');
+      } else {
+        nav('setup');
+      }
+
+      updateHistBadge();
+
+      // Bind setup
+      $('sw').addEventListener('input',()=>onSetupInput());
+
+      // Bind calc
+      ['cglu','ctar','ccarb'].forEach(id=>{
+        const e=$(id);if(!e)return;
+        e.addEventListener('input',recalc);
+      });
+      ['micr','misf'].forEach(id=>{
+        const e=$(id);if(!e)return;
+        e.addEventListener('input',recalc);
+      });
+    },
+
+    nav, toggleSidebar, openSidebar, closeSidebar,
+    selectType(el){
+      document.querySelectorAll('.type-opt').forEach(o=>o.classList.remove('active'));
+      el.classList.add('active');
+      patientType=el.dataset.type;
+      onSetupInput();
+    },
+    selectMeal(el){
+      document.querySelectorAll('.meal-opt').forEach(m=>m.classList.remove('active'));
+      el.classList.add('active');meal=el.dataset.meal;
+    },
+    saveConfig,
+    toggleLang(){I18n.toggle();applyLang();},
+    toggleTheme(){theme=theme==='light'?'dark':'light';applyTheme();updateAllTexts();},
+    onDarkSwitch(cb){theme=cb.checked?'dark':'light';applyTheme();updateAllTexts();},
+    setMode,
+    toggleBreakdown(){
+      bkOpen=!bkOpen;
+      if(calcResult&&calcResult.ok){
+        if(bkOpen){show('cbk-list','flex');$('cbk-list').style.flexDirection='column';}
+        else show('cbk-list',false);
+        txt('bk-toggle-lbl',bkOpen?t('bk-toggle-hide'):t('bk-toggle-lbl'));
+        $('bk-chevron').classList.toggle('open',bkOpen);
+      }
+    },
+    filterHistory, clearHistoryFilter, clearHistory, exportHistoryCSV,
+    openHistDetail, closeModal, loadHistoryItem,
+    downloadPDF, printView, clearCalc,
+    exportAllData, clearAllData,
+  };
+})();
+
+document.addEventListener('DOMContentLoaded',()=>App.init());
+</script>
+</body>
+</html>
